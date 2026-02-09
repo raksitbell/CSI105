@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedList Management</title>
+    
+    <!-- External Dependencies: Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151b2e',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style>
+        /* --- Scrollbar Customization --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* --- Action Panel Animation --- */
+        #actionPanel {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #actionPanel.open {
+            max-height: 200px; /* Adjust based on content */
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-900 font-sans antialiased p-4 md:p-8 min-h-screen relative">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- ============================================ -->
+        <!--                HEADER SECTION                -->
+        <!-- ============================================ -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Workshop : Management LinkedList</h1>
+                <p class="text-gray-500 text-sm mt-1">Author: 68037294 Raksit Phothong</p>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!--              MAIN CONTENT AREA               -->
+        <!-- ============================================ -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            
+            <!-- ---------------------------------------- -->
+            <!--             TOOLBAR SECTION              -->
+            <!-- ---------------------------------------- -->
+            <div class="p-4 border-b border-gray-200 flex flex-col lg:flex-row gap-4 items-center justify-between z-20 relative bg-white">
+                
+                <!-- Left: Create List -->
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <button onclick="toggleActionPanel('create')" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 whitespace-nowrap transition-colors shadow-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Create List
+                    </button>
+                </div>
+
+                <!-- Right: Actions -->
+                <div class="flex flex-wrap gap-2 w-full lg:w-auto justify-end items-center">
+                    <span class="text-xs text-gray-500 self-center hidden sm:block mr-2 uppercase tracking-wider font-semibold">Actions:</span>
+                    
+                    <!-- Unshift / Add Front -->
+                    <button onclick="toggleActionPanel('unshift')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-300 shadow-sm transition-colors" title="Add to Front (Unshift)">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        Unshift
+                    </button>
+
+                    <!-- Push / Add Back -->
+                    <button onclick="toggleActionPanel('push')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-300 shadow-sm transition-colors" title="Add to Back (Push)">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                        Push
+                    </button>
+
+                    <!-- Set Operation -->
+                    <button onclick="toggleActionPanel('set')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-300 shadow-sm transition-colors" title="Set Value at Index">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        Set
+                    </button>
+
+                    <div class="w-px h-6 bg-gray-200 mx-1 self-center"></div>
+
+                    <!-- Shift / Drop Front -->
+                    <button onclick="toggleActionPanel('shift')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 border border-red-200 transition-colors" title="Remove from Front (Shift)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Shift
+                    </button>
+
+                    <!-- Pop / Drop Back -->
+                    <button onclick="toggleActionPanel('pop')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 border border-red-200 transition-colors" title="Remove from Back (Pop)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        Pop
+                    </button>
+
+                    <div class="w-px h-6 bg-gray-200 mx-1 self-center"></div>
+
+                    <!-- Delete List -->
+                    <button onclick="toggleActionPanel('delete')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 border border-red-600 shadow-sm transition-colors" title="Delete Selected List(s)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+
+            <!-- ---------------------------------------- -->
+            <!--          INLINE ACTION PANEL             -->
+            <!-- ---------------------------------------- -->
+            <div id="actionPanel" class="bg-blue-50/50 border-b border-gray-200">
+                <div class="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                    
+                    <!-- Action Inputs Area -->
+                    <div class="flex-1 w-full md:w-auto">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-sm font-semibold text-gray-700 uppercase tracking-wide" id="panelActionTitle">Action</span>
+                            <span class="text-xs text-gray-500 bg-white px-2 py-0.5 rounded border border-gray-200 shadow-sm" id="panelSelectedLists"></span>
+                        </div>
+                        
+                        <div class="flex flex-wrap items-center gap-2" id="panelInputs">
+                            <!-- List Name -->
+                            <input type="text" id="panelListName" class="hidden flex-1 md:flex-none w-full md:w-64 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2" placeholder="Enter new list name">
+                            <!-- Index -->
+                            <input type="number" id="panelIndex" class="hidden w-24 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2" placeholder="Index">
+                            <!-- Value -->
+                            <input type="text" id="panelValue" class="hidden flex-1 md:flex-none w-full md:w-48 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2" placeholder="Value">
+                        </div>
+                        <p id="panelDescription" class="text-sm text-gray-600 mt-1 hidden"></p>
+                    </div>
+
+                    <!-- Panel Controls -->
+                    <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                        <button onclick="hideActionPanel()" class="text-gray-500 bg-white hover:bg-gray-100 font-medium rounded-lg text-sm px-4 py-2 border border-gray-300 shadow-sm">
+                            Cancel
+                        </button>
+                        <button onclick="confirmAction()" id="panelConfirmBtn" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 shadow-sm">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ---------------------------------------- -->
+            <!--              TABLE SECTION               -->
+            <!-- ---------------------------------------- -->
+            <div class="relative overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th scope="col" class="p-4 w-4">
+                                <div class="flex items-center">
+                                    <input id="checkbox-all" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer" onclick="toggleAll(this)">
+                                </div>
+                            </th>
+                            <th scope="col" class="px-6 py-3 tracking-wider text-gray-700 font-semibold w-1/4">List Name</th>
+                            <th scope="col" class="px-6 py-3 tracking-wider text-gray-700 font-semibold w-3/4">Data Structure</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listBody" class="divide-y divide-gray-200">
+                        <!-- Dynamic Rows Here -->
+                    </tbody>
+                </table>
+                <div id="emptyState" class="hidden p-8 text-center text-gray-500">
+                    <p>No linked lists created yet. Create one to get started.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================ -->
+    <!--              JAVASCRIPT LOGIC                -->
+    <!-- ============================================ -->
+    <script>
+        // --- 1. DATA MODELS ---
+        class Node {
+            constructor(value) {
+                this.value = value;
+                this.next = null;
+            }
+        }
+
+        class LinkedList {
+            constructor(name, initialData = []) {
+                this.name = name;
+                this.head = null;
+                this.tail = null;
+                this.length = 0;
+                
+                // Initialize with existing data if present
+                if (initialData.length > 0) {
+                    initialData.forEach(val => this.push(val, false));
+                }
+            }
+
+            // Sync UI and Storage after any change
+            sync() {
+                const data = this.toArray();
+                console.log(`LinkedList "${this.name}" updated:`, data);
+                
+                const row = document.getElementById(`row-${this.name}`);
+                if (row) {
+                    const dataCell = row.querySelector('.data-cell');
+                    if(dataCell) dataCell.textContent = JSON.stringify(data);
+                }
+                saveAllToLocalStorage();
+            }
+
+            // Operations
+            push(value, shouldSync = true) {
+                const newNode = new Node(value);
+                if (!this.head) {
+                    this.head = newNode;
+                    this.tail = newNode;
+                } else {
+                    this.tail.next = newNode;
+                    this.tail = newNode;
+                }
+                this.length++;
+                if (shouldSync) this.sync();
+                return this;
+            }
+
+            pop() {
+                if (!this.head) return undefined;
+                let current = this.head;
+                let newTail = current;
+                while (current.next) {
+                    newTail = current;
+                    current = current.next;
+                }
+                this.tail = newTail;
+                this.tail.next = null;
+                this.length--;
+                if (this.length === 0) {
+                    this.head = null;
+                    this.tail = null;
+                }
+                this.sync();
+                return current;
+            }
+
+            shift() {
+                if (!this.head) return undefined;
+                const temp = this.head;
+                this.head = this.head.next;
+                this.length--;
+                if (this.length === 0) this.tail = null;
+                this.sync();
+                return temp;
+            }
+
+            unshift(value) {
+                const newNode = new Node(value);
+                if (!this.head) {
+                    this.head = newNode;
+                    this.tail = newNode;
+                } else {
+                    newNode.next = this.head;
+                    this.head = newNode;
+                }
+                this.length++;
+                this.sync();
+                return this;
+            }
+
+            set(index, value) {
+                if (!this.head) return false;
+                let current = this.head;
+                let count = 0;
+                while (current) {
+                    if (count === Number(index)) {
+                        current.value = value;
+                        this.sync();
+                        return true;
+                    }
+                    count++;
+                    current = current.next;
+                }
+                return false;
+            }
+
+            toArray() {
+                const arr = [];
+                let current = this.head;
+                while (current) {
+                    arr.push(current.value);
+                    current = current.next;
+                }
+                return arr;
+            }
+        }
+
+        // --- 2. GLOBAL STATE ---
+        let lists = {};
+        let currentAction = null;
+
+        // --- 3. STORAGE ---
+        function saveAllToLocalStorage() {
+            const storageObj = {};
+            for (let name in lists) {
+                storageObj[name] = lists[name].toArray();
+            }
+            localStorage.setItem('csi105_linkedlists', JSON.stringify(storageObj));
+            updateEmptyState();
+        }
+
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('csi105_linkedlists');
+            if (savedData) {
+                const storageObj = JSON.parse(savedData);
+                for (let name in storageObj) {
+                    addListToUI(name, storageObj[name]);
+                }
+            }
+            updateEmptyState();
+        }
+
+        // --- 4. UI RENDERER ---
+        function updateEmptyState() {
+            const tbody = document.getElementById('listBody');
+            const emptyState = document.getElementById('emptyState');
+            if (tbody.children.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        function addListToUI(name, initialData = []) {
+            const newList = new LinkedList(name, initialData);
+            lists[name] = newList;
+
+            const tableBody = document.getElementById('listBody');
+            const row = document.createElement('tr');
+            row.id = `row-${name}`;
+            row.className = "hover:bg-gray-50 transition-colors group";
+
+            // Row Setup
+            row.innerHTML = `
+                <td class="w-4 p-4">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="selectedList" value="${name}" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                    </div>
+                </td>
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${name}</td>
+                <td class="px-6 py-4 font-mono text-blue-600 data-cell">${JSON.stringify(initialData)}</td>
+            `;
+            
+            tableBody.appendChild(row);
+            console.log(`Initialized List: ${name}`);
+            updateEmptyState();
+        }
+
+        function toggleAll(source) {
+            const checkboxes = document.querySelectorAll('input[name="selectedList"]');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+        }
+
+        // --- 5. ACTION PANEL LOGIC ---
+        function toggleActionPanel(action) {
+            const panel = document.getElementById('actionPanel');
+            
+            // Toggle closed if clicking same action
+            if (currentAction === action && panel.classList.contains('open')) {
+                hideActionPanel();
+                return;
+            }
+
+            currentAction = action;
+            const elements = {
+                title: document.getElementById('panelActionTitle'),
+                desc: document.getElementById('panelDescription'),
+                selectedSpan: document.getElementById('panelSelectedLists'),
+                inputList: document.getElementById('panelListName'),
+                inputIndex: document.getElementById('panelIndex'),
+                inputValue: document.getElementById('panelValue'),
+                confirmBtn: document.getElementById('panelConfirmBtn')
+            };
+
+            // Reset Inputs
+            elements.inputList.value = '';
+            elements.inputIndex.value = '';
+            elements.inputValue.value = '';
+            [elements.inputList, elements.inputIndex, elements.inputValue, elements.desc].forEach(el => el.classList.add('hidden'));
+
+            // Check Selections (unless creating)
+            const selectedMetadata = getSelectedListsMetadata();
+            if (action !== 'create') {
+                if (selectedMetadata.count === 0) {
+                    alert("Please select at least one list to operate on.");
+                    return; 
+                }
+                const names = selectedMetadata.names.join(', ');
+                elements.selectedSpan.textContent = names.length > 50 ? names.substring(0, 50) + '...' : names;
+                elements.selectedSpan.classList.remove('hidden');
+            } else {
+                elements.selectedSpan.classList.add('hidden');
+            }
+
+            // Configure Panel
+            const configs = {
+                'create': { title: 'Create New List', inputs: [elements.inputList], btn: 'Create', color: 'blue' },
+                'push':   { title: 'Push (Add Back)', inputs: [elements.inputValue], btn: 'Push', color: 'emerald' },
+                'unshift':{ title: 'Unshift (Add Front)', inputs: [elements.inputValue], btn: 'Unshift', color: 'emerald' },
+                'set':    { title: 'Set Value', inputs: [elements.inputIndex, elements.inputValue], btn: 'Update', color: 'blue' },
+                'pop':    { title: 'Pop (Drop Back)', msg: "Remove the last element?", btn: 'Pop', color: 'red' },
+                'shift':  { title: 'Shift (Drop Front)', msg: "Remove the first element?", btn: 'Shift', color: 'red' },
+                'delete': { title: 'Delete List(s)', msg: "Permanently delete selected lists?", btn: 'Delete', color: 'red' }
+            };
+
+            const config = configs[action];
+            if (config) {
+                elements.title.textContent = config.title;
+                if (config.inputs) config.inputs.forEach(el => {
+                    el.classList.remove('hidden');
+                    if (el === elements.inputIndex) el.focus();
+                    else if (el !== elements.inputIndex) el.focus(); // Simple focus logic
+                });
+                if (config.msg) {
+                    elements.desc.textContent = config.msg;
+                    elements.desc.classList.remove('hidden');
+                }
+                
+                elements.confirmBtn.textContent = config.btn;
+                // Set Button Color Class
+                const colorMap = {
+                    'blue': 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-300',
+                    'emerald': 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-300',
+                    'red': 'bg-red-600 hover:bg-red-700 focus:ring-red-300'
+                };
+                elements.confirmBtn.className = `text-white ${colorMap[config.color]} focus:ring-4 font-medium rounded-lg text-sm px-4 py-2 shadow-sm transition-colors`;
+            }
+
+            // Show Panel
+            panel.classList.add('open');
+            // elements.inputList.focus(); // Auto focus if visible logic could be improved here
+        }
+
+        function hideActionPanel() {
+            const panel = document.getElementById('actionPanel');
+            panel.classList.remove('open');
+            setTimeout(() => { currentAction = null; }, 300);
+        }
+
+        function getSelectedListsMetadata() {
+            const selected = document.querySelectorAll('input[name="selectedList"]:checked');
+            const names = Array.from(selected).map(cb => cb.value);
+            return { count: selected.length, names: names };
+        }
+
+        function confirmAction() {
+            const value = document.getElementById('panelValue').value.trim();
+            const index = document.getElementById('panelIndex').value.trim();
+            const listName = document.getElementById('panelListName').value.trim();
+            
+            // Handle Create
+            if (currentAction === 'create') {
+                if (!listName) return alert("Please enter a list name");
+                if (lists[listName]) return alert("List already exists");
+                addListToUI(listName);
+                saveAllToLocalStorage();
+                hideActionPanel();
+                return;
+            }
+
+            // Handle Other Actions
+            const selectedMetadata = getSelectedListsMetadata();
+            if (selectedMetadata.count === 0) { hideActionPanel(); return; }
+            
+            selectedMetadata.names.forEach(name => {
+                const list = lists[name];
+                
+                switch(currentAction) {
+                    case 'delete':
+                        delete lists[name];
+                        const row = document.getElementById(`row-${name}`);
+                        if (row) row.remove();
+                        break;
+                    case 'push':
+                    case 'unshift':
+                        if(value) list[currentAction](value);
+                        break;
+                    case 'set':
+                        if(value && index !== '') list.set(index, value);
+                        break;
+                    case 'pop':
+                    case 'shift':
+                        list[currentAction]();
+                        break;
+                }
+            });
+
+            if (currentAction === 'delete') saveAllToLocalStorage();
+            hideActionPanel();
+        }
+
+        // --- 6. INITIALIZATION ---
+        window.onload = loadFromLocalStorage;
+
+    </script>
+</body>
+</html>
