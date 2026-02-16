@@ -1,4 +1,4 @@
-# CSI105 Workshop : Stack vs Queue Visualization
+# CSI105T Workshop : Stack vs Queue Visualization
 
 An interactive web application to visualize and understand the differences between Stack (LIFO) and Queue (FIFO) data structures.
 

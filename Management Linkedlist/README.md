@@ -1,6 +1,6 @@
 # Workshop: Management Linked List
 
-> CSI105 Data Structures — Author: 68037294 Raksit Phothong
+> CSI105T Data Structures — Author: 68037294 Raksit Phothong
 
 ## Overview
 

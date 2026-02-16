@@ -1,6 +1,6 @@
-# CSI105 Data Structures Workshop
+# CSI105T Data Structures Workshop
 
-Welcome to the CSI105 Workshop repository. This project contains interactive visualizations and management tools for fundamental data structures.
+Welcome to the CSI105T Workshop repository. This project contains interactive visualizations and management tools for fundamental data structures.
 
 ## Modules
 
