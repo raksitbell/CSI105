@@ -1,0 +1,90 @@
+/* Quick Sort Component Styles - shared styles are in global.css */
+
+.canvas-container {
+    perspective: 1000px;
+}
+
+.array-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.array-bar {
+    width: 100%;
+    min-width: 20px;
+    max-width: 50px;
+    border-radius: 6px 6px 0 0;
+    transition: all 0.3s ease;
+    background-color: #93c5fd; /* blue-300 */
+    border: 1px solid #60a5fa; /* blue-400 */
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.3);
+}
+
+@media (min-width: 640px) {
+    .array-bar {
+        min-width: 30px;
+        max-width: 60px;
+    }
+}
+
+.array-bar.sorted {
+    background-color: #bbf7d0; /* green-200 */
+    border-color: #4ade80; /* green-400 */
+}
+
+/* value label inside bar */
+.bar-value {
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e3a8a; /* blue-900 */
+    transition: opacity 0.2s;
+}
+
+/* Indicators below the bar */
+.indicator-container {
+    height: 32px;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+.indicator {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 6px;
+    border-radius: 6px;
+    color: white;
+    line-height: 1;
+    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform-origin: top center;
+}
+
+@media (min-width: 640px) {
+    .indicator {
+        font-size: 0.70rem;
+        padding: 4px 8px;
+    }
+}
+
+.indicator.pivot { background-color: #ef4444; color: white; border: 1px solid #dc2626;} /* red-500 */
+.indicator.r { background-color: #f97316; color: white; border: 1px solid #ea580c;} /* orange-500 */
+.indicator.f { background-color: #3b82f6; color: white; border: 1px solid #2563eb;} /* blue-500 */
+
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.highlight-swap {
+    filter: brightness(1.1);
+    transform: translateY(-5px);
+}

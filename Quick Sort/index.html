@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop: Quick Sort</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../global.css">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
+                    colors: { blue: { 650: '#2563eb' } }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-blue-50/30 text-gray-900 font-sans antialiased p-4 md:p-8 min-h-screen relative">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- HEADER -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Workshop : Quick Sort</h1>
+                <p class="text-gray-500 text-sm mt-1">Author: 68037294 Raksit Phothong</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- WORKSHOP CONTENT GOES HERE -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl border border-blue-100 shadow-sm transition-all duration-300">
+            
+            <!-- Controls Area -->
+            <div class="flex flex-col lg:flex-row gap-4 mb-8">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Input Array (comma separated)</label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="arrayInput" class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" value="44, 78, 22, 7, 98, 56, 34, 2, 38, 35, 45">
+                        <button id="btnGenerate" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors whitespace-nowrap">Random</button>
+                    </div>
+                </div>
+                <div class="flex items-end gap-2 lg:ml-auto">
+                    <button id="btnSort" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm shadow-blue-200 transition-all hover:shadow-md whitespace-nowrap sm:w-auto w-full">Start Quick Sort</button>
+                    <button id="btnReset" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl transition-colors whitespace-nowrap hidden sm:inline-block">Reset</button>
+                    <button id="btnResetMobile" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors sm:hidden w-full flex justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Header for current status -->
+            <div class="mb-4 flex flex-col xl:flex-row justify-between items-start gap-4">
+                <div class="flex-1">
+                     <h2 class="text-xl font-bold text-gray-800" id="statusTitle">Waiting for input array...</h2>
+                     <p class="text-sm text-gray-500 mt-1" id="statusSubtitle">Enter an array and click Start to visualize Quick Sort.</p>
+                     
+                     <div class="mt-4 bg-blue-50/50 rounded-xl p-3 border border-blue-100 max-w-xl">
+                         <h4 class="text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">Ascending Rules (Fixed Pivot at Last Index)</h4>
+                         <ul class="text-sm text-blue-900/80 space-y-1">
+                             <li><strong>Pivot at (F):</strong> If <code class="bg-white px-1 rounded text-orange-600 font-semibold border border-blue-100">R > F</code>, Swap(R,F) and <code class="bg-white px-1 rounded text-blue-600 font-semibold border border-blue-100">F -= 1</code></li>
+                             <li><strong>Pivot at (R):</strong> If <code class="bg-white px-1 rounded text-orange-600 font-semibold border border-blue-100">R > F</code>, Swap(R,F) and <code class="bg-white px-1 rounded text-orange-600 font-semibold border border-blue-100">R += 1</code></li>
+                         </ul>
+                     </div>
+                </div>
+                
+                <!-- Legend -->
+                <div class="flex flex-wrap gap-3 text-xs font-medium xl:justify-end shrink-0">
+                    <div class="flex flex-col items-center gap-1.5 bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 min-w-[70px]">
+                        <span class="w-6 h-6 rounded-md bg-red-500 shadow-sm border border-red-600 border-opacity-20 flex items-center justify-center text-white font-bold">P</span>
+                        <span class="text-gray-600">Pivot</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1.5 bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 min-w-[70px]">
+                        <span class="w-6 h-6 rounded-md bg-orange-500 shadow-sm border border-orange-600 border-opacity-20 flex items-center justify-center text-white font-bold">R</span>
+                        <span class="text-gray-600">Pointer R</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1.5 bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 min-w-[70px]">
+                        <span class="w-6 h-6 rounded-md bg-blue-500 shadow-sm border border-blue-600 border-opacity-20 flex items-center justify-center text-white font-bold">F</span>
+                        <span class="text-gray-600">Pointer F</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1.5 bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 min-w-[70px]">
+                        <span class="w-6 h-6 rounded-md bg-green-200 border border-green-400"></span>
+                        <span class="text-gray-600">Sorted</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="relative bg-white rounded-xl p-4 md:p-8 border border-gray-200 min-h-[350px] flex flex-col justify-end items-center overflow-x-auto shadow-inner">
+                <div id="arrayContainer" class="flex items-end gap-1 sm:gap-2 h-[200px] sm:h-[250px] w-full justify-center min-w-max pb-8 relative">
+                    <!-- Element bars will be injected here -->
+                </div>
+            </div>
+
+            <!-- Playback Controls -->
+            <div id="playbackControls" class="mt-6 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 opacity-50 pointer-events-none transition-opacity">
+                <div class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg flex-shrink-0 text-center w-full xl:w-auto" id="stepCounter">Step: 0 / 0</div>
+                
+                <div class="flex flex-wrap items-center justify-center gap-2 flex-1 xl:flex-none">
+                    <button id="btnPrev" class="p-2 sm:px-4 sm:py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-600 transition flex items-center justify-center flex-1 sm:flex-none min-w-[50px]">
+                        <svg class="w-5 h-5 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        <span class="hidden sm:inline">Prev</span>
+                    </button>
+                    <button id="btnPlayPause" class="px-6 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold rounded-lg transition min-w-[80px] sm:min-w-[100px] flex-1 sm:flex-none">Play</button>
+                    <button id="btnNext" class="p-2 sm:px-4 sm:py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-600 transition flex items-center justify-center flex-1 sm:flex-none min-w-[50px]">
+                        <span class="hidden sm:inline">Next</span>
+                        <svg class="w-5 h-5 sm:ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    <button id="btnSkipRound" title="Skip to end of round" class="p-2 sm:px-3 sm:py-2 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 rounded-lg text-indigo-700 transition flex items-center justify-center text-sm font-medium flex-1 sm:flex-none min-w-[50px]">
+                        <svg class="w-4 h-4 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                        <span class="hidden sm:inline">Skip Round</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-1 bg-white border border-gray-200 p-1 rounded-lg w-full xl:w-auto mt-2 xl:mt-0">
+                    <button id="btnSpeed1x" class="px-3 py-1.5 sm:py-1 rounded-md text-sm font-medium bg-blue-50 text-blue-600 transition flex-1 xl:flex-none">1x Speed</button>
+                    <button id="btnSpeed2x" class="px-3 py-1.5 sm:py-1 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition flex-1 xl:flex-none">2x Speed</button>
+                </div>
+            </div>
+
+            <!-- Log Area -->
+            <div class="mt-8 bg-gray-50 rounded-xl border border-gray-100 overflow-hidden hidden" id="logContainer">
+                 <div class="bg-gray-100 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                     <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Execution Log</h4>
+                     <button id="btnToggleLog" class="text-gray-400 hover:text-gray-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button>
+                 </div>
+                 <div id="logContent" class="text-sm text-gray-600 font-mono p-4 space-y-1 max-h-48 overflow-y-auto w-full transition-all block"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Toast Container (Styled in global.css) -->
+    <div id="toastContainer"></div>
+    <script src="script.js"></script>
+</body>
+</html>
