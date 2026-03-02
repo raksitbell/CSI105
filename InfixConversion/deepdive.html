@@ -122,12 +122,13 @@
                 <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
                     <div class="step-num"></div>
                     <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">1. Tokenization</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">Before converting the expression, we need to break the input string into a list of meaningful components called "tokens" (numbers, letters, operators, and parentheses). We use regular expressions for this.</p>
+                        <h4 class="text-base sm:text-lg font-bold text-gray-900">1. Tokenization & Input Prep</h4>
+                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">First, the user's input string is broken down into a list of meaningful tokens (operands, operators, parentheses) using a regular expression. This gives us an array of items to iterate through.</p>
                         <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — Tokenizer helper</span>
 <span class="keyword">const</span> <span class="function">tok</span> = (<span class="keyword">e</span>) => <span class="keyword">e</span>.match(<span class="string">/[a-zA-Z0-9]+|[\+\-\*\/\^\(\)]/g</span>) || [];
-<span class="keyword">const</span> <span class="function">isOp</span> = (<span class="keyword">t</span>) => <span class="string">/^[a-zA-Z0-9]+$/</span>.test(<span class="keyword">t</span>);</pre>
+
+<span class="keyword">let</span> t = <span class="function">tok</span>(exp);</pre>
                         </div>
                     </div>
                 </div>
@@ -138,18 +139,13 @@
                 <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
                     <div class="step-num"></div>
                     <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">2. Processing Loop Setup</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">We iterate through each token. If it's an operand, it goes straight to the output. If we are converting to prefix, we must reverse the tokens and flip the parentheses first.</p>
+                        <h4 class="text-base sm:text-lg font-bold text-gray-900">2. Prefix Pre-processing (Optional)</h4>
+                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">If the user selected "Prefix" conversion, we actually process the expression backwards. We reverse the token array and swap left and right parentheses, then run the standard algorithm.</p>
                         <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
-<pre><span class="comment">// From script.js — Setup & Prefix handling</span>
-<span class="keyword">let</span> t = <span class="function">tok</span>(exp);
-<span class="comment">// If Prefix: reverse tokens and swap parenthesis directions</span>
-<span class="keyword">if</span> (pre) t = t.<span class="function">reverse</span>().<span class="function">map</span>((c) => (c === <span class="string">"("</span> ? <span class="string">")"</span> : c === <span class="string">")"</span> ? <span class="string">"("</span> : c));
-
-<span class="keyword">let</span> out = [], ops = [];
-t.<span class="function">forEach</span>((c) => {
-  <span class="keyword">if</span> (<span class="function">isOp</span>(c))
-    out.<span class="function">push</span>(c); <span class="comment">// Append operand to output</span></pre>
+<pre><span class="comment">// From script.js — Reverse tokens & swap parenthesis</span>
+<span class="keyword">if</span> (pre) {
+  t = t.<span class="function">reverse</span>().<span class="function">map</span>((c) => (c === <span class="string">"("</span> ? <span class="string">")"</span> : c === <span class="string">")"</span> ? <span class="string">"("</span> : c));
+}</pre>
                         </div>
                     </div>
                 </div>
@@ -160,25 +156,19 @@ t.<span class="function">forEach</span>((c) => {
                 <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
                     <div class="step-num"></div>
                     <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">3. Handling Operators by Precedence</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">When an operator is found, we pop operators from the stack to the output while the stack's top has higher or equal precedence. Notably, we handle right-associativity (like exponentiation <code>^</code>) differently for Prefix vs Postfix.</p>
+                        <h4 class="text-base sm:text-lg font-bold text-gray-900">3. The Core Loop: Operands & Parentheses</h4>
+                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">We initialize an <code>out</code> array for results and an <code>ops</code> stack for operations. As we iterate over each token:<br>• <b>Operands</b> (letters/numbers) are pushed directly to the output.<br>• <b>Open Parentheses</b> <code>(</code> are pushed to the stack.<br>• <b>Close Parentheses</b> <code>)</code> trigger popping from the stack to the output until the matching open parenthesis is found.</p>
                         <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
-<pre><span class="comment">// From script.js — Precedence checks</span>
-<span class="keyword">while</span> (ops.length && ops[ops.length - <span class="number">1</span>] !== <span class="string">"("</span>) {
-  <span class="keyword">let</span> top = ops[ops.length - <span class="number">1</span>];
-  
-  <span class="keyword">let</span> cond = pre
-    ? p[top] > p[c] || (p[top] === p[c] && c === <span class="string">"^"</span>)
-    : p[top] > p[c] || (p[top] === p[c] && c !== <span class="string">"^"</span>);
-    
-  <span class="keyword">if</span> (cond) out.<span class="function">push</span>(ops.<span class="function">pop</span>());
-  <span class="keyword">else break</span>;
-}
-ops.<span class="function">push</span>(c); <span class="comment">// Push current operator</span></pre>
-                        </div>
-                        <div class="bg-blue-50/80 p-3 sm:p-4 rounded-xl border border-blue-100 flex gap-3 text-xs sm:text-sm text-blue-800">
-                            <span class="text-base sm:text-lg">💡</span>
-                            <p><strong>Associativity dictates the direction of evaluation:</strong> Left-associative operators (+, -, *, /) evaluate left-to-right, while right-associative ones (^) evaluate right-to-left. The strictness of the condition <code>p[top] === p[c]</code> determines this.</p>
+<pre><span class="keyword">let</span> out = [], ops = [];
+t.<span class="function">forEach</span>((c) => {
+  <span class="keyword">if</span> (<span class="function">isOp</span>(c)) out.<span class="function">push</span>(c); <span class="comment">// Operand straight to output</span>
+  <span class="keyword">else if</span> (c === <span class="string">"("</span>) ops.<span class="function">push</span>(c); <span class="comment">// Open parenthesis to stack</span>
+  <span class="keyword">else if</span> (c === <span class="string">")"</span>) {
+    <span class="comment">// Pop until we discover '('</span>
+    <span class="keyword">while</span> (ops.length && ops[ops.length - <span class="number">1</span>] !== <span class="string">"("</span>) 
+      out.<span class="function">push</span>(ops.<span class="function">pop</span>());
+    ops.<span class="function">pop</span>(); <span class="comment">// Discard the '(' itself</span>
+  }</pre>
                         </div>
                     </div>
                 </div>
@@ -189,13 +179,39 @@ ops.<span class="function">push</span>(c); <span class="comment">// Push current
                 <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
                     <div class="step-num"></div>
                     <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">4. Final Polish & Output</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">Finally, we flush any remaining operators from the stack to the output array. If we were converting to Prefix, we must reverse the final array so it reads correctly.</p>
+                        <h4 class="text-base sm:text-lg font-bold text-gray-900">4. The Core Loop: Operators & Precedence</h4>
+                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">If the token is an operator (like <code>+</code>, <code>*</code>, <code>^</code>), we check its precedence against the operator at the top of the stack. Because Prefix evaluates right-to-left for powers (associativity), its conditional check differs slightly from Postfix. If the top operator has higher (or equal) precedence, we pop it to the output first.</p>
                         <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
-<pre><span class="comment">// From script.js — Finalization</span>
+<pre><span class="keyword">else</span> {
+  <span class="keyword">while</span> (ops.length && ops[ops.length - <span class="number">1</span>] !== <span class="string">"("</span>) {
+    <span class="keyword">let</span> top = ops[ops.length - <span class="number">1</span>];
+    <span class="comment">// Check precedence & associativity (Prefix handles ^ differently)</span>
+    <span class="keyword">let</span> cond = pre
+      ? p[top] > p[c] || (p[top] === p[c] && c === <span class="string">"^"</span>)
+      : p[top] > p[c] || (p[top] === p[c] && c !== <span class="string">"^"</span>);
+      
+    <span class="keyword">if</span> (cond) out.<span class="function">push</span>(ops.<span class="function">pop</span>());
+    <span class="keyword">else break</span>;
+  }
+  ops.<span class="function">push</span>(c); <span class="comment">// Finally push the new operator</span>
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step-connector">
+                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                    <div class="step-num"></div>
+                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                        <h4 class="text-base sm:text-lg font-bold text-gray-900">5. Final Polish & Output</h4>
+                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">Once the loop is finished, we empty any remaining operators from the stack into the output array. If we were executing Prefix conversion, this is the final moment where we reverse the entire output array back to normal so it reads correctly. The user sees the final joined string on the screen!</p>
+                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+<pre><span class="comment">// Flush remaining operators to the output</span>
 <span class="keyword">while</span> (ops.length) out.<span class="function">push</span>(ops.<span class="function">pop</span>());
 
-<span class="comment">// If Prefix: restore original order by reversing again</span>
+<span class="comment">// Reverse back if prefix, join array elements with space</span>
 <span class="keyword">return</span> (pre ? out.<span class="function">reverse</span>() : out).<span class="function">join</span>(<span class="string">" "</span>);</pre>
                         </div>
                     </div>
