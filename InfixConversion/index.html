@@ -1,29 +1,70 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infix Converter Tester</title>
-  </head>
-  <body style="font-family: sans-serif; padding: 2rem">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
-      <h2 style="margin: 0;">Infix to Prefix/Postfix</h2>
-      <div style="display: flex; gap: 1rem;">
-        <a href="deepdive.html" style="text-decoration: none; color: #0d6efd; font-weight: bold; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid #0d6efd; border-radius: 4px; background: #f8f9fa;">Deep Dive</a>
-        <a href="../index.html" style="text-decoration: none; color: #6c757d; font-weight: bold; font-size: 0.9rem; padding: 0.5rem 1rem; border: 1px solid #ccc; border-radius: 4px; background: #fff;">Back to Home</a>
-      </div>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../global.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
+                    colors: { blue: { 650: '#2563eb' } }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-blue-50/30 text-gray-900 font-sans antialiased p-4 md:p-8 min-h-screen relative">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- HEADER -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Workshop : Infix Conversion</h1>
+                <p class="text-gray-500 text-sm mt-1">Author: 68037294 Raksit Phothong</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="deepdive.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    Deep Dive
+                </a>
+                <a href="../index.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden p-6 md:p-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Infix to Prefix/Postfix Converter</h2>
+            <form onsubmit="handleConversion(event)" class="space-y-4">
+                <div class="flex flex-col gap-2">
+                    <label for="expressionInput" class="text-sm font-medium text-gray-700">Mathematical Expression:</label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input
+                            type="text"
+                            id="expressionInput"
+                            class="flex-1 border border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-3 transition-colors outline-none"
+                            placeholder="e.g. A + B * C"
+                        />
+                        <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-6 py-3 transition-colors shadow-sm whitespace-nowrap">
+                            Convert
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <div id="output" class="mt-6"></div>
+        </div>
     </div>
-    <form onsubmit="handleConversion(event)">
-      <label for="expressionInput">Expression:</label>
-      <input
-        type="text"
-        id="expressionInput"
-        style="padding: 0.5rem; width: 300px"
-      />
-      <button type="submit" style="padding: 0.5rem 1rem">Convert</button>
-    </form>
-    <div id="output"></div>
 
     <script src="script.js"></script>
-  </body>
+</body>
 </html>
