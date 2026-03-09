@@ -1,267 +1,650 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Deep Dive: Infix Conversion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../global.css">
+    <link rel="stylesheet" href="../global.css" />
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Kanit', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
-                    colors: { blue: { 650: '#2563eb' } }
-                }
-            }
-        }
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Kanit", "sans-serif"],
+              mono: ["Fira Code", "monospace"],
+            },
+            colors: { blue: { 650: "#2563eb" } },
+          },
+        },
+      };
     </script>
     <style>
-        .code-block { background: #0f172a; color: #e2e8f0; border-radius: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .code-block .keyword { color: #c084fc; }
-        .code-block .string { color: #34d399; }
-        .code-block .comment { color: #64748b; }
-        .code-block .function { color: #60a5fa; }
-        .code-block .class-name { color: #fbbf24; }
-        .code-block .number { color: #f472b6; }
-        .code-block .null { color: #fb923c; }
+      .code-block {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .code-block .keyword {
+        color: #c084fc;
+      }
+      .code-block .string {
+        color: #34d399;
+      }
+      .code-block .comment {
+        color: #64748b;
+      }
+      .code-block .function {
+        color: #60a5fa;
+      }
+      .code-block .class-name {
+        color: #fbbf24;
+      }
+      .code-block .number {
+        color: #f472b6;
+      }
+      .code-block .null {
+        color: #fb923c;
+      }
 
-        .step-card { counter-increment: step; position: relative; }
+      .step-card {
+        counter-increment: step;
+        position: relative;
+      }
+      .step-num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .step-num::after {
+        content: counter(step);
+      }
+      .step-connector {
+        position: relative;
+      }
+      .step-connector::before {
+        content: "";
+        position: absolute;
+        left: 17px;
+        top: 44px;
+        bottom: -12px;
+        width: 2px;
+        background: linear-gradient(to bottom, #3b82f6, #dbeafe);
+      }
+      .step-connector:last-child::before {
+        display: none;
+      }
+      @media (min-width: 768px) {
         .step-num {
-            display: flex; align-items: center; justify-content: center;
-            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white; font-weight: 700; font-size: 14px;
+          width: 40px;
+          height: 40px;
+          font-size: 16px;
         }
-        .step-num::after { content: counter(step); }
-        .step-connector { position: relative; }
         .step-connector::before {
-            content: ''; position: absolute; left: 17px; top: 44px; bottom: -12px;
-            width: 2px; background: linear-gradient(to bottom, #3b82f6, #dbeafe);
+          left: 19px;
+          top: 48px;
         }
-        .step-connector:last-child::before { display: none; }
-        @media (min-width: 768px) {
-            .step-num { width: 40px; height: 40px; font-size: 16px; }
-            .step-connector::before { left: 19px; top: 48px; }
-        }
+      }
 
-        .node-box { animation: fadeUp 0.5s ease-out forwards; opacity: 0; }
-        .node-box:nth-child(1) { animation-delay: 0.1s; }
-        .node-box:nth-child(2) { animation-delay: 0.3s; }
-        .node-box:nth-child(3) { animation-delay: 0.5s; }
-        .node-box:nth-child(4) { animation-delay: 0.7s; }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+      .node-box {
+        animation: fadeUp 0.5s ease-out forwards;
+        opacity: 0;
+      }
+      .node-box:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .node-box:nth-child(2) {
+        animation-delay: 0.3s;
+      }
+      .node-box:nth-child(3) {
+        animation-delay: 0.5s;
+      }
+      .node-box:nth-child(4) {
+        animation-delay: 0.7s;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
         }
-        .arrow { color: #3b82f6; font-weight: bold; margin: 0 2px; font-size: 16px; }
-        @media (min-width: 768px) { .arrow { margin: 0 4px; font-size: 20px; } }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .arrow {
+        color: #3b82f6;
+        font-weight: bold;
+        margin: 0 2px;
+        font-size: 16px;
+      }
+      @media (min-width: 768px) {
+        .arrow {
+          margin: 0 4px;
+          font-size: 20px;
+        }
+      }
     </style>
-</head>
-<body class="bg-blue-50/30 text-gray-900 font-sans antialiased min-h-screen" style="counter-reset: step;">
-
+  </head>
+  <body
+    class="bg-blue-50/30 text-gray-900 font-sans antialiased min-h-screen"
+    style="counter-reset: step"
+  >
     <!-- HEADER -->
     <div class="bg-white border-b border-blue-100 sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-                <a href="index.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm flex-shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    <span class="hidden sm:inline">Back to Index</span>
-                    <span class="sm:hidden">Back</span>
-                </a>
-                <div class="min-w-0">
-                    <h1 class="text-base sm:text-lg font-bold text-gray-900 truncate">Deep Dive: Infix Conversion</h1>
-                    <p class="text-[10px] sm:text-xs text-gray-400 hidden sm:block">How this project works — step by step</p>
-                </div>
-            </div>
-            <span class="text-[10px] sm:text-xs bg-blue-50 text-blue-600 font-semibold px-2 sm:px-3 py-1 rounded-full border border-blue-100 flex-shrink-0">CSI105T</span>
+      <div
+        class="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2"
+      >
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+          <a
+            href="index2.html"
+            class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm flex-shrink-0"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              ></path>
+            </svg>
+            <span class="hidden sm:inline">Back to Index</span>
+            <span class="sm:hidden">Back</span>
+          </a>
+          <div class="min-w-0">
+            <h1 class="text-base sm:text-lg font-bold text-gray-900 truncate">
+              Deep Dive: Infix Conversion
+            </h1>
+            <p class="text-[10px] sm:text-xs text-gray-400 hidden sm:block">
+              How this project works — step by step
+            </p>
+          </div>
         </div>
+        <span
+          class="text-[10px] sm:text-xs bg-blue-50 text-blue-600 font-semibold px-2 sm:px-3 py-1 rounded-full border border-blue-100 flex-shrink-0"
+          >CSI105T</span
+        >
+      </div>
     </div>
 
     <!-- CONTENT -->
-    <div class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-10 space-y-8 sm:space-y-12">
-        
-        <!-- INTRO -->
-        <div class="text-center space-y-3 sm:space-y-4">
-            <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                Tech Deep Dive
-            </div>
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">How the Infix Conversion Works</h2>
-            <p class="text-gray-500 text-sm sm:text-base max-w-2xl mx-auto">This page explains every major part of the Infix Conversion project. All code shown is the <strong>real code</strong> from this project.</p>
+    <div
+      class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-10 space-y-8 sm:space-y-12"
+    >
+      <!-- INTRO -->
+      <div class="text-center space-y-3 sm:space-y-4">
+        <div
+          class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+            ></path>
+          </svg>
+          Tech Deep Dive
         </div>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+          How the Infix Conversion Works
+        </h2>
+        <p class="text-gray-500 text-sm sm:text-base max-w-2xl mx-auto">
+          This page explains every major part of the Infix Conversion project.
+          All code shown is the <strong>real code</strong> from this project.
+        </p>
+      </div>
 
-        <!-- CONCEPT -->
-        <div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
-            <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-                <span class="text-xl sm:text-2xl">🧠</span> What is the Shunting Yard Algorithm?
-            </h3>
-            <p class="text-gray-600 text-sm sm:text-base leading-relaxed">The Shunting Yard algorithm, invented by Edsger Dijkstra, is a method for parsing mathematical expressions specified in infix notation. It can be used to produce output in Reverse Polish Notation (Postfix) or Prefix notation. The algorithm uses a stack to hold operators and pushes operands directly to the output.</p>
-            
-            <div class="flex flex-wrap flex-col sm:flex-row items-center justify-center gap-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100 mt-4">
-                <div class="flex flex-wrap items-center justify-center gap-2">
-                    <span class="text-sm font-semibold text-gray-500 mr-2">Infix:</span>
-                    <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700 text-xs sm:text-sm">A</div>
-                    <div class="bg-blue-50 border-2 border-blue-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-blue-600 text-xs sm:text-sm ring-2 ring-blue-200">+</div>
-                    <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700 text-xs sm:text-sm">B</div>
-                </div>
-                <span class="arrow hidden sm:inline">→</span>
-                <div class="flex flex-wrap items-center justify-center gap-2">
-                    <span class="text-sm font-semibold text-gray-500 mr-2">Postfix:</span>
-                    <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700 text-xs sm:text-sm">A</div>
-                    <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700 text-xs sm:text-sm">B</div>
-                    <div class="bg-green-50 border-2 border-green-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-green-600 text-xs sm:text-sm ring-2 ring-green-200">+ ✨</div>
-                </div>
+      <!-- CONCEPT -->
+      <div
+        class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5"
+      >
+        <h3
+          class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2"
+        >
+          <span class="text-xl sm:text-2xl">🧠</span> What is the Shunting Yard
+          Algorithm?
+        </h3>
+        <p class="text-gray-600 text-sm sm:text-base leading-relaxed">
+          The Shunting Yard algorithm, invented by Edsger Dijkstra, is a method
+          for parsing mathematical expressions specified in infix notation. It
+          can be used to produce output in Reverse Polish Notation (Postfix) or
+          Prefix notation. The algorithm uses a stack to hold operators and
+          pushes operands directly to the output.
+        </p>
+
+        <div
+          class="flex flex-wrap flex-col sm:flex-row items-center justify-center gap-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100 mt-4"
+        >
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <span class="text-sm font-semibold text-gray-500 mr-2">Infix:</span>
+            <div
+              class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700 text-xs sm:text-sm"
+            >
+              A
             </div>
+            <div
+              class="bg-blue-50 border-2 border-blue-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-blue-600 text-xs sm:text-sm ring-2 ring-blue-200"
+            >
+              +
+            </div>
+            <div
+              class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700 text-xs sm:text-sm"
+            >
+              B
+            </div>
+          </div>
+          <span class="arrow hidden sm:inline">→</span>
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <span class="text-sm font-semibold text-gray-500 mr-2"
+              >Postfix:</span
+            >
+            <div
+              class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700 text-xs sm:text-sm"
+            >
+              A
+            </div>
+            <div
+              class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700 text-xs sm:text-sm"
+            >
+              B
+            </div>
+            <div
+              class="bg-green-50 border-2 border-green-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-green-600 text-xs sm:text-sm ring-2 ring-green-200"
+            >
+              + ✨
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- STEPS -->
-        <div class="space-y-0">
-            <!-- Step 1 -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">1. Tokenization & Input Prep</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">First, the user's input string is broken down into a list of meaningful tokens (operands, operators, parentheses) using a regular expression. This gives us an array of items to iterate through.</p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
-<pre><span class="comment">// From script.js — Tokenizer helper</span>
+      <!-- STEPS -->
+      <div class="space-y-0">
+        <!-- Step 1 -->
+        <div class="step-connector">
+          <div
+            class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6"
+          >
+            <div class="step-num"></div>
+            <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+              <h4 class="text-base sm:text-lg font-bold text-gray-900">
+                1. Tokenization & Input Prep
+              </h4>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                First, the user's input string is broken down into a list of
+                meaningful tokens (operands, operators, parentheses) using a
+                regular expression. This gives us an array of items to iterate
+                through.
+              </p>
+              <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+                <pre><span class="comment">// From script.js — Tokenizer helper</span>
 <span class="keyword">const</span> <span class="function">tok</span> = (<span class="keyword">e</span>) => <span class="keyword">e</span>.match(<span class="string">/[a-zA-Z0-9]+|[\+\-\*\/\^\(\)]/g</span>) || [];
 
 <span class="keyword">let</span> t = <span class="function">tok</span>(exp);</pre>
-                        </div>
-                    </div>
-                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Step 2 -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">2. Prefix Pre-processing (Optional)</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">If the user selected "Prefix" conversion, we actually process the expression backwards. We reverse the token array and swap left and right parentheses, then run the standard algorithm.</p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
-<pre><span class="comment">// From script.js — Reverse tokens & swap parenthesis</span>
-<span class="keyword">if</span> (pre) {
-  t = t.<span class="function">reverse</span>().<span class="function">map</span>((c) => (c === <span class="string">"("</span> ? <span class="string">")"</span> : c === <span class="string">")"</span> ? <span class="string">"("</span> : c));
-}</pre>
-                        </div>
-                    </div>
-                </div>
+        <!-- Step 2 -->
+        <div class="step-connector">
+          <div
+            class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6"
+          >
+            <div class="step-num"></div>
+            <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+              <h4 class="text-base sm:text-lg font-bold text-gray-900">
+                2. Prefix Pre-processing (Prefix Only)
+              </h4>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                If doing Prefix conversion (via <code>InfixToPrefix</code>), we
+                process the expression backwards. We reverse the token array and
+                swap left and right parentheses, then run the algorithm.
+              </p>
+              <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+                <pre><span class="comment">// From InfixToPrefix() — Reverse tokens & swap parenthesis</span>
+t = t.<span class="function">reverse</span>().<span class="function">map</span>((c) => (c === <span class="string">"("</span> ? <span class="string">")"</span> : c === <span class="string">")"</span> ? <span class="string">"("</span> : c));</pre>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Step 3 -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">3. The Core Loop: Operands & Parentheses</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">We initialize an <code>out</code> array for results and an <code>ops</code> stack for operations. As we iterate over each token:<br>• <b>Operands</b> (letters/numbers) are pushed directly to the output.<br>• <b>Open Parentheses</b> <code>(</code> are pushed to the stack.<br>• <b>Close Parentheses</b> <code>)</code> trigger popping from the stack to the output until the matching open parenthesis is found.</p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
-<pre><span class="keyword">let</span> out = [], ops = [];
+        <!-- Step 3 -->
+        <div class="step-connector">
+          <div
+            class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6"
+          >
+            <div class="step-num"></div>
+            <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+              <h4 class="text-base sm:text-lg font-bold text-gray-900">
+                3. The Core Loop: Operands & Parentheses
+              </h4>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                We initialize an <code>out</code> array for results and an
+                <code>ops</code> stack for operations. As we iterate over each
+                token:<br />• <b>Operands</b> (letters/numbers) are pushed
+                directly to the output.<br />• <b>Open Parentheses</b>
+                <code>(</code> are pushed to the stack.<br />•
+                <b>Close Parentheses</b> <code>)</code> trigger popping from the
+                stack to the output until the matching open parenthesis is
+                found.
+              </p>
+              <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+                <pre><span class="keyword">let</span> out = [], ops = [];
 t.<span class="function">forEach</span>((c) => {
-  <span class="keyword">if</span> (<span class="function">isOp</span>(c)) out.<span class="function">push</span>(c); <span class="comment">// Operand straight to output</span>
-  <span class="keyword">else if</span> (c === <span class="string">"("</span>) ops.<span class="function">push</span>(c); <span class="comment">// Open parenthesis to stack</span>
-  <span class="keyword">else if</span> (c === <span class="string">")"</span>) {
-    <span class="comment">// Pop until we discover '('</span>
-    <span class="keyword">while</span> (ops.length && ops[ops.length - <span class="number">1</span>] !== <span class="string">"("</span>) 
-      out.<span class="function">push</span>(ops.<span class="function">pop</span>());
-    ops.<span class="function">pop</span>(); <span class="comment">// Discard the '(' itself</span>
-  }</pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 4 -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">4. The Core Loop: Operators & Precedence</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">If the token is an operator (like <code>+</code>, <code>*</code>, <code>^</code>), we check its precedence against the operator at the top of the stack. Because Prefix evaluates right-to-left for powers (associativity), its conditional check differs slightly from Postfix. If the top operator has higher (or equal) precedence, we pop it to the output first.</p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
-<pre><span class="keyword">else</span> {
-  <span class="keyword">while</span> (ops.length && ops[ops.length - <span class="number">1</span>] !== <span class="string">"("</span>) {
-    <span class="keyword">let</span> top = ops[ops.length - <span class="number">1</span>];
-    <span class="comment">// Check precedence & associativity (Prefix handles ^ differently)</span>
-    <span class="keyword">let</span> cond = pre
-      ? p[top] > p[c] || (p[top] === p[c] && c === <span class="string">"^"</span>)
-      : p[top] > p[c] || (p[top] === p[c] && c !== <span class="string">"^"</span>);
+  <span class="keyword">switch</span> (<span class="keyword">true</span>) {
+    <span class="keyword">case</span> <span class="function">isOp</span>(c):
+      out.<span class="function">push</span>(c); <span class="comment">// Operand straight to output</span>
+      <span class="keyword">break</span>;
       
-    <span class="keyword">if</span> (cond) out.<span class="function">push</span>(ops.<span class="function">pop</span>());
-    <span class="keyword">else break</span>;
-  }
-  ops.<span class="function">push</span>(c); <span class="comment">// Finally push the new operator</span>
-}</pre>
-                        </div>
-                    </div>
-                </div>
+    <span class="keyword">case</span> c === <span class="string">"("</span>:
+      ops.<span class="function">push</span>(c); <span class="comment">// Open parenthesis to stack</span>
+      <span class="keyword">break</span>;
+      
+    <span class="keyword">case</span> c === <span class="string">")"</span>:
+      <span class="comment">// Pop until we discover '('</span>
+      <span class="keyword">while</span> (ops.length && ops[ops.length - <span class="number">1</span>] !== <span class="string">"("</span>) 
+        out.<span class="function">push</span>(ops.<span class="function">pop</span>());
+      ops.<span class="function">pop</span>(); <span class="comment">// Discard the '(' itself</span>
+      <span class="keyword">break</span>;</pre>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Step 5 -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">5. Final Polish & Output</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">Once the loop is finished, we empty any remaining operators from the stack into the output array. If we were executing Prefix conversion, this is the final moment where we reverse the entire output array back to normal so it reads correctly. The user sees the final joined string on the screen!</p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
-<pre><span class="comment">// Flush remaining operators to the output</span>
+        <!-- Step 4 -->
+        <div class="step-connector">
+          <div
+            class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6"
+          >
+            <div class="step-num"></div>
+            <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+              <h4 class="text-base sm:text-lg font-bold text-gray-900">
+                4. The Core Loop: Operators & Precedence
+              </h4>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                If the token falls into the <code>default</code> case, it must
+                be an operator (like <code>+</code>, <code>*</code>,
+                <code>^</code>). We check its precedence against the operator at
+                the top of the stack. Because Prefix evaluates right-to-left for
+                powers (associativity), its conditional check differs slightly
+                from Postfix.
+              </p>
+              <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+                <pre>    <span class="keyword">default</span>:
+      <span class="keyword">while</span> (ops.length && ops[ops.length - <span class="number">1</span>] !== <span class="string">"("</span>) {
+        <span class="keyword">let</span> top = ops[ops.length - <span class="number">1</span>];
+        
+        <span class="comment">// Postfix Check:</span>
+        <span class="comment">// if (p[top] > p[c] || (p[top] === p[c] && c !== "^"))</span>
+
+        <span class="comment">// Prefix Check:</span>
+        <span class="comment">// if (p[top] > p[c] || (p[top] === p[c] && c === "^"))</span>
+          
+        <span class="keyword">if</span> (cond) out.<span class="function">push</span>(ops.<span class="function">pop</span>());
+        <span class="keyword">else break</span>;
+      }
+      ops.<span class="function">push</span>(c); <span class="comment">// Finally push the new operator</span>
+      <span class="keyword">break</span>;
+  }
+});</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step-connector">
+          <div
+            class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6"
+          >
+            <div class="step-num"></div>
+            <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+              <h4 class="text-base sm:text-lg font-bold text-gray-900">
+                5. Final Polish & Output
+              </h4>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                Once the loop is finished, we empty any remaining operators from
+                the stack into the output array. If doing Prefix, this is where
+                we reverse the entire output array back to normal so it reads
+                correctly. The user sees the final joined string on the screen!
+              </p>
+              <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+                <pre><span class="comment">// Flush remaining operators to the output</span>
 <span class="keyword">while</span> (ops.length) out.<span class="function">push</span>(ops.<span class="function">pop</span>());
 
-<span class="comment">// Reverse back if prefix, join array elements with space</span>
-<span class="keyword">return</span> (pre ? out.<span class="function">reverse</span>() : out).<span class="function">join</span>(<span class="string">" "</span>);</pre>
-                        </div>
-                    </div>
-                </div>
+<span class="comment">// Postfix finish:</span>
+<span class="comment">// return out.join(" ");</span>
+
+<span class="comment">// Prefix finish:</span>
+<span class="comment">// return out.reverse().join(" ");</span></pre>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY TABLE -->
+      <div
+        class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden"
+      >
+        <div class="p-4 sm:p-6 border-b border-blue-50">
+          <h3 class="text-lg sm:text-xl font-bold text-gray-900">
+            📋 Operations Summary
+          </h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sm:text-sm">
+            <thead class="bg-blue-50/50">
+              <tr>
+                <th
+                  class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700"
+                >
+                  Phase
+                </th>
+                <th
+                  class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700 hidden sm:table-cell"
+                >
+                  What it does
+                </th>
+                <th
+                  class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700"
+                >
+                  Time Complexity
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-blue-50">
+              <tr>
+                <td class="px-3 sm:px-6 py-3 sm:py-4 font-medium text-gray-900">
+                  Tokenization
+                </td>
+                <td
+                  class="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell"
+                >
+                  Matches values and operators into an array via RegEx.
+                </td>
+                <td class="px-3 sm:px-6 py-3 sm:py-4">
+                  <span
+                    class="bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-xs font-semibold border border-yellow-200"
+                    >O(n)</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td class="px-3 sm:px-6 py-3 sm:py-4 font-medium text-gray-900">
+                  Iteration
+                </td>
+                <td
+                  class="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell"
+                >
+                  Loops over the tokens and applies stack pushes/pops.
+                </td>
+                <td class="px-3 sm:px-6 py-3 sm:py-4">
+                  <span
+                    class="bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-xs font-semibold border border-yellow-200"
+                    >O(n)</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td class="px-3 sm:px-6 py-3 sm:py-4 font-medium text-gray-900">
+                  Array Reverse (Prefix)
+                </td>
+                <td
+                  class="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell"
+                >
+                  Reverses the array to correct the ordering for Prefix
+                  notation.
+                </td>
+                <td class="px-3 sm:px-6 py-3 sm:py-4">
+                  <span
+                    class="bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-xs font-semibold border border-yellow-200"
+                    >O(n)</span
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ALGORITHM FLOWCHART FROM USER IMAGE -->
+      <div
+        class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 md:p-8 space-y-4"
+      >
+        <h3 class="text-lg sm:text-xl font-bold text-gray-900">
+          ⚙️ Reference Algorithm Flowcharts
+        </h3>
+
+        <!-- 1. General Flow -->
+        <div class="mt-4 mb-4 border-b border-blue-50 pb-8">
+          <h4 class="text-md sm:text-lg font-semibold text-gray-800 pb-2">
+            1. Application Flow
+          </h4>
+          <div
+            class="mermaid flex justify-center w-full overflow-x-auto text-sm mt-4"
+          >
+            %%{init: {'flowchart': {'curve': 'linear'}}}%% flowchart LR
+            Start([Start]) --> Expr[/Expression/] Expr --> RmWS[Remove
+            Whitespace<br />in Expression] RmWS --> Op[Operator<br />Operand] Op
+            --> PreFix[function<br />InfixtoPrefix(expression)] Op -->
+            PostFix[function<br />InfixtoPostfix(expression)] PostFix -->
+            Print[/Infix, Prefix, Postfix/] PreFix --> Print Print -->
+            End([End]) style Start fill:#111,stroke:#fff,color:#fff style Expr
+            fill:#111,stroke:#fff,color:#fff style RmWS
+            fill:#111,stroke:#fff,color:#fff style Op
+            fill:#111,stroke:#fff,color:#fff style Print
+            fill:#111,stroke:#fff,color:#fff style End
+            fill:#111,stroke:#fff,color:#fff style PreFix
+            fill:#2b7c12,stroke:#fff,color:#fff style PostFix
+            fill:#0075c4,stroke:#fff,color:#fff
+          </div>
         </div>
 
-        <!-- SUMMARY TABLE -->
-        <div class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
-            <div class="p-4 sm:p-6 border-b border-blue-50">
-                <h3 class="text-lg sm:text-xl font-bold text-gray-900">📋 Operations Summary</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs sm:text-sm">
-                    <thead class="bg-blue-50/50">
-                        <tr>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Phase</th>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700 hidden sm:table-cell">What it does</th>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Time Complexity</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-blue-50">
-                        <tr>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 font-medium text-gray-900">Tokenization</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell">Matches values and operators into an array via RegEx.</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4"><span class="bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-xs font-semibold border border-yellow-200">O(n)</span></td>
-                        </tr>
-                        <tr>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 font-medium text-gray-900">Iteration</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell">Loops over the tokens and applies stack pushes/pops.</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4"><span class="bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-xs font-semibold border border-yellow-200">O(n)</span></td>
-                        </tr>
-                        <tr>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 font-medium text-gray-900">Array Reverse (Prefix)</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 hidden sm:table-cell">Reverses the array to correct the ordering for Prefix notation.</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4"><span class="bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-md font-mono text-[10px] sm:text-xs font-semibold border border-yellow-200">O(n)</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <!-- 2. getPrecedence Flow -->
+        <div class="mt-4 mb-4 border-b border-blue-50 pb-8">
+          <h4 class="text-md sm:text-lg font-semibold text-gray-800 pb-2">
+            2. getPrecedence Mapping
+          </h4>
+          <div
+            class="mermaid flex justify-center w-full overflow-x-auto text-sm mt-4"
+          >
+            %%{init: {'flowchart': {'curve': 'stepAfter'}}}%% flowchart TD
+            Start([Start_getPrecedence]) --> Check{Operator is?} Check -->|**|
+            Ret3[return 3] Check -->|*, /| Ret2[return 2] Check -->|+, -|
+            Ret1[return 1] Check -->|else| Ret0[return 0] Ret3 -->
+            End([End_getPrecedence]) Ret2 --> End Ret1 --> End Ret0 --> End
+            style Start fill:#111,stroke:#fff,color:#fff style Check
+            fill:#111,stroke:#fff,color:#fff style Ret3
+            fill:#111,stroke:#fff,color:#fff style Ret2
+            fill:#111,stroke:#fff,color:#fff style Ret1
+            fill:#111,stroke:#fff,color:#fff style Ret0
+            fill:#111,stroke:#fff,color:#fff style End
+            fill:#111,stroke:#fff,color:#fff linkStyle default stroke:#fff
+          </div>
         </div>
 
-        <!-- FOOTER -->
-        <div class="text-center text-gray-400 text-[10px] sm:text-xs pb-4 sm:pb-6">
-            Workshop: Infix Conversion — CSI105T Data Structures · Author: 68037294 Raksit Phothong
+        <!-- 3. InfixtoPostfix Flow -->
+        <div class="mt-4">
+          <h4 class="text-md sm:text-lg font-semibold text-gray-800 pb-2">
+            3. Start_InfixtoPostfix Loop
+          </h4>
+          <div
+            class="mermaid flex justify-center w-full overflow-x-auto text-xs mt-4"
+          >
+            %%{init: {'flowchart': {'curve': 'linear'}}}%% flowchart TD
+            Start([Start_InfixtoPostfix]) --> InitS[/Stack = []/] InitS -->
+            InitP[/PostFix = []/] InitP --> Expr[/Expression/] Expr -->
+            Idx[/Index = 0/] Idx --> CharGet[char = expression<br />charAt(index)]
+            CharGet --> OpCheck{Operand is?} %% Main Loop Branching OpCheck
+            -->|char = (| TrueOpen[Postfix push(char)] OpCheck -->|False<br />char
+            = )| TrueClose[Postfix push(Stack.pop\(\))] OpCheck -->|False<br />Operator?|
+            TrueOp[check priority &&<br />insert char to Postfix] OpCheck
+            -->|False<br />index < Expression.length| TrueEnd{ } %% Loop
+            Connecting Back TrueOpen --> LoopEnd[/index++/] TrueClose -->
+            CloseCheck{Stack.top\(\) == \(?} CloseCheck -->|False| TrueClose
+            CloseCheck -->|True| LoopEnd TrueOp --> PushStack[Stack.push\(\)]
+            PushStack --> LoopEnd TrueEnd -->|True| CharGet LoopEnd --> OpCheck
+            %% The diagram styling style Start
+            fill:#0075c4,stroke:#fff,color:#fff classDef generic
+            fill:#111,stroke:#fff,color:#fff class
+            InitS,InitP,Expr,Idx,CharGet,OpCheck,TrueOpen,TrueClose,TrueOp,TrueEnd,LoopEnd,CloseCheck,PushStack
+            generic linkStyle default stroke:#fff
+          </div>
         </div>
+      </div>
 
+      <!-- FOOTER -->
+      <div
+        class="text-center text-gray-400 text-[10px] sm:text-xs pb-4 sm:pb-6"
+      >
+        Workshop: Infix Conversion — CSI105T Data Structures · Author: 68037294
+        Raksit Phothong
+      </div>
     </div>
 
-</body>
+    <script>
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#eff6ff",
+          primaryBorderColor: "#93c5fd",
+          primaryTextColor: "#1e3a8a",
+          lineColor: "#3b82f6",
+          fontFamily: "Kanit, sans-serif",
+        },
+      });
+    </script>
+  </body>
 </html>

@@ -1,130 +1,339 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CSI105T - Data Structures Workshop</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="global.css" />
 
     <style>
-        .blue-gradient { background: linear-gradient(135deg, #1e40af, #3b82f6); }
-        .workshop-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .workshop-card:hover { 
-            transform: translateY(-4px); 
-            box-shadow: 0 12px 24px -8px rgba(59, 130, 246, 0.2); 
-            border-color: #3b82f6; 
-        }
-        .dot-pattern { 
-            background-image: radial-gradient(circle, #bfdbfe 1px, transparent 1px); 
-            background-size: 20px 20px; 
-        }
+      .blue-gradient {
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
+      }
+      .workshop-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .workshop-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -8px rgba(59, 130, 246, 0.2);
+        border-color: #3b82f6;
+      }
+      .dot-pattern {
+        background-image: radial-gradient(circle, #bfdbfe 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
     </style>
-</head>
-<body class="bg-white font-['Kanit'] antialiased min-h-screen">
-
+  </head>
+  <body class="bg-white font-['Kanit'] antialiased min-h-screen">
     <!-- HERO SECTION -->
-    <div class="blue-gradient text-white py-16 md:py-24 px-4 relative overflow-hidden">
-        <div class="absolute inset-0 opacity-20 dot-pattern"></div>
-        <div class="relative z-10 max-w-4xl mx-auto text-center">
-            <p class="text-blue-100 text-sm font-medium uppercase tracking-widest mb-3">CSI105T — Computer Science</p>
-            <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">Data Structures Workshop</h1>
-            <p class="text-white/90 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">Simple and effective interactive tools for education.</p>
-            <div class="mt-8 flex flex-col items-center">
-                <div class="h-1 w-20 bg-white/30 rounded-full mb-4"></div>
-                <p class="text-blue-100/80 text-sm uppercase tracking-wider font-medium">Author: 68037294 Raksit Phothong</p>
-            </div>
+    <div
+      class="blue-gradient text-white py-16 md:py-24 px-4 relative overflow-hidden"
+    >
+      <div class="absolute inset-0 opacity-20 dot-pattern"></div>
+      <div class="relative z-10 max-w-4xl mx-auto text-center">
+        <p
+          class="text-blue-100 text-sm font-medium uppercase tracking-widest mb-3"
+        >
+          CSI105T — Computer Science
+        </p>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+          Data Structures Workshop
+        </h1>
+        <p
+          class="text-white/90 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
+        >
+          Simple and effective interactive tools for education.
+        </p>
+        <div class="mt-8 flex flex-col items-center">
+          <div class="h-1 w-20 bg-white/30 rounded-full mb-4"></div>
+          <p
+            class="text-blue-100/80 text-sm uppercase tracking-wider font-medium"
+          >
+            Author: 68037294 Raksit Phothong
+          </p>
         </div>
+      </div>
     </div>
 
     <!-- CARD GRID -->
     <div class="max-w-6xl mx-auto px-4 -mt-12 relative z-20 pb-20">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-
-            <div class="workshop-card bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden group">
-                <div class="p-8">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-                        <svg class="w-7 h-7 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Linked List</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed mb-6">Manage and visualize singly linked lists with interactive operations.</p>
-                    <a href="Management Linkedlist/index.html" class="flex items-center text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors">
-                        Open Workshop
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
-                    <a href="Management Linkedlist/deepdive.html" class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors mt-3">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                        Deep Dive
-                    </a>
-                </div>
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
+      >
+        <div
+          class="workshop-card bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden group"
+        >
+          <div class="p-8">
+            <div
+              class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors"
+            >
+              <svg
+                class="w-7 h-7 text-blue-600 group-hover:text-white transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                ></path>
+              </svg>
             </div>
-
-            <div class="workshop-card bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden group">
-                <div class="p-8">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-                        <svg class="w-7 h-7 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Stack & Queue</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed mb-6">Compare LIFO and FIFO operations with side-by-side visualization.</p>
-                    <a href="Stack and Queue/index.html" class="flex items-center text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors">
-                        Open Workshop
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
-                    <a href="Stack and Queue/deepdive.html" class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors mt-3">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                        Deep Dive
-                    </a>
-                </div>
-            </div>
-
-            <div class="workshop-card bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden group">
-                <div class="p-8">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-                        <svg class="w-7 h-7 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Infix Conversion</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed mb-6">Convert infix expressions to prefix and postfix notations interactively.</p>
-                    <a href="Infix Conversion/index.html" class="flex items-center text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors">
-                        Open Workshop
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
-                    <a href="Infix Conversion/deepdive.html" class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors mt-3">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                        Deep Dive
-                    </a>
-                </div>
-            </div>
-
-            <div class="workshop-card bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden group">
-                <div class="p-8">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-                        <svg class="w-7 h-7 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Quick Sort</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed mb-6">Visualize the divide-and-conquer sorting algorithm step-by-step.</p>
-                    <a href="Quick Sort/index.html" class="flex items-center text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors">
-                        Open Workshop
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
-                    <a href="Quick Sort/deepdive.html" class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors mt-3">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                        Deep Dive
-                    </a>
-                </div>
-            </div>
-
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Linked List</h3>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6">
+              Manage and visualize singly linked lists with interactive
+              operations.
+            </p>
+            <a
+              href="ManagementLinkedlist/index.html"
+              class="flex items-center text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors"
+            >
+              View Project
+              <svg
+                class="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </a>
+            <a
+              href="ManagementLinkedlist/deepdive.html"
+              class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors mt-3"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                ></path>
+              </svg>
+              Deep Dive
+            </a>
+          </div>
         </div>
-    </div>
 
-</body>
+        <div
+          class="workshop-card bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden group"
+        >
+          <div class="p-8">
+            <div
+              class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors"
+            >
+              <svg
+                class="w-7 h-7 text-blue-600 group-hover:text-white transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Stack & Queue</h3>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6">
+              Compare LIFO and FIFO operations with side-by-side visualization.
+            </p>
+            <a
+              href="StacknQueue/index.html"
+              class="flex items-center text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors"
+            >
+              View Project
+              <svg
+                class="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </a>
+            <a
+              href="StacknQueue/deepdive.html"
+              class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors mt-3"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                ></path>
+              </svg>
+              Deep Dive
+            </a>
+          </div>
+        </div>
+
+        <div
+          class="workshop-card bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden group"
+        >
+          <div class="p-8">
+            <div
+              class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors"
+            >
+              <svg
+                class="w-7 h-7 text-blue-600 group-hover:text-white transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">
+              Infix Conversion
+            </h3>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6">
+              Convert infix expressions to prefix and postfix notations
+              interactively, driven by a custom OOP LinkedList.
+            </p>
+            <a
+              href="InfixConversion/index2.html"
+              class="flex items-center text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors"
+            >
+              View Project
+              <svg
+                class="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </a>
+            <a
+              href="InfixConversion/deepdive.html"
+              class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors mt-3"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                ></path>
+              </svg>
+              Deep Dive
+            </a>
+          </div>
+        </div>
+
+        <div
+          class="workshop-card bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden group"
+        >
+          <div class="p-8">
+            <div
+              class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors"
+            >
+              <svg
+                class="w-7 h-7 text-blue-600 group-hover:text-white transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Quick Sort</h3>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6">
+              Visualize sorting an array in ascending order frame-by-frame.
+            </p>
+            <a
+              href="QuickSort/index.html"
+              class="flex items-center text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors"
+            >
+              View Project
+              <svg
+                class="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </a>
+            <a
+              href="QuickSort/deepdive.html"
+              class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 font-medium transition-colors mt-3"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                ></path>
+              </svg>
+              Deep Dive
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

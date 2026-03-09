@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Infix to Postfix Converter</title>
+
+    <!-- UI Styling -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Kanit", "sans-serif"] },
+            colors: { blue: { 650: "#2563eb" } },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-blue-50/30 text-gray-900 font-sans antialiased p-4 md:p-8 min-h-screen flex items-center justify-center"
+  >
+    <div class="w-full max-w-2xl">
+      <!-- MAIN CONTAINER -->
+      <div
+        class="bg-white rounded-2xl border border-blue-100 shadow-xl overflow-hidden"
+      >
+        <!-- Header -->
+        <div
+          class="bg-gradient-to-r from-blue-600 to-blue-500 p-6 text-white text-center"
+        >
+          <h1 class="text-2xl font-bold tracking-tight">
+            Infix to Postfix Converter
+          </h1>
+          <p class="text-blue-100 text-sm mt-1">
+            Enter a mathematical expression to see the resulting postfix string.
+          </p>
+        </div>
+
+        <!-- Working Area -->
+        <div class="p-6 md:p-8 space-y-6">
+          <form id="convertForm" class="space-y-3">
+            <label
+              for="expressionInput"
+              class="block text-sm font-semibold text-gray-700"
+              >Infix Expression:</label
+            >
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                id="expressionInput"
+                autofocus
+                class="flex-1 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg p-3 transition-colors outline-none"
+                placeholder="e.g. A + (B * C)"
+                value="A+(B*C)"
+              />
+              <button
+                type="submit"
+                class="text-white bg-blue-600 hover:bg-blue-700 font-semibold rounded-xl text-md px-8 py-3 transition-transform active:scale-95 shadow-md whitespace-nowrap"
+              >
+                Convert
+              </button>
+            </div>
+          </form>
+
+          <!-- Divider -->
+          <div class="border-t border-gray-100"></div>
+
+          <!-- Result Window -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Prefix Result -->
+            <div
+              class="bg-blue-50/50 rounded-xl border border-blue-100 p-5 space-y-2"
+            >
+              <h3
+                class="text-sm font-semibold text-blue-600 uppercase tracking-widest flex items-center justify-between"
+              >
+                Prefix Result
+              </h3>
+              <div
+                id="outputDisplayPrefix"
+                class="font-mono text-2xl font-medium text-blue-700 break-all min-h-[32px]"
+              >
+                <!-- Output gets injected here -->
+              </div>
+            </div>
+
+            <!-- Postfix Result -->
+            <div
+              class="bg-green-50/50 rounded-xl border border-green-100 p-5 space-y-2"
+            >
+              <h3
+                class="text-sm font-semibold text-green-600 uppercase tracking-widest flex items-center justify-between"
+              >
+                Postfix Result
+              </h3>
+              <div
+                id="outputDisplayPostfix"
+                class="font-mono text-2xl font-medium text-green-700 break-all min-h-[32px]"
+              >
+                <!-- Output gets injected here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // -------------  PRESERVED SCRIPT LOGIC -------------
+
+      // Node and LinkedList Implementation for Stack
+      class Node {
+        constructor(data) {
+          this.data = data;
+          this.next = null;
+        }
+      }
+
+      class LinkedList {
+        constructor() {
+          this.head = null;
+          this.size = 0;
+        }
+
+        // Push to top of stack (head)
+        push(data) {
+          let newNode = new Node(data);
+          newNode.next = this.head;
+          this.head = newNode;
+          this.size++;
+        }
+
+        // Pop from top of stack (head)
+        pop() {
+          if (!this.head) return null;
+          let poppedNode = this.head;
+          this.head = this.head.next;
+          this.size--;
+          return poppedNode.data;
+        }
+
+        // Peek at top of stack (head)
+        peek() {
+          return this.head ? this.head.data : null;
+        }
+
+        // Check length
+        get length() {
+          return this.size;
+        }
+
+        // Helper to visualize stack in console
+        print() {
+          let current = this.head;
+          let items = [];
+          while (current) {
+            items.push(current.data);
+            current = current.next;
+          }
+          return items.join(" -> ");
+        }
+      }
+
+      function getPrecedence(Op) {
+        switch (Op) {
+          case "**":
+            return 3;
+          case "*":
+          case "/":
+            return 2;
+          case "+":
+          case "-":
+            return 1;
+          default:
+            return 0;
+        }
+      }
+
+      function removeWhitespace(exp) {
+        return exp.replace(/\s+/g, "");
+      }
+
+      function infixToPostfix(rawExp) {
+        let Stack = new LinkedList();
+        let Postfix = [];
+        let exp = removeWhitespace(rawExp);
+
+        for (let index = 0; index < exp.length; index++) {
+          let char = exp.charAt(index);
+          if (
+            char === "*" &&
+            index + 1 < exp.length &&
+            exp.charAt(index + 1) === "*"
+          ) {
+            char = "**";
+            index++;
+          }
+
+          if (char.length === 1 && char.match(/[A-Za-z0-9]/)) {
+            Postfix.push(char);
+          } else if (char == "(") {
+            Stack.push(char);
+          } else if (char == ")") {
+            while (Stack.length && Stack.peek() !== "(") {
+              Postfix.push(Stack.pop());
+            }
+            Stack.pop();
+          } else {
+            while (
+              Stack.length &&
+              getPrecedence(Stack.peek()) >= getPrecedence(char)
+            ) {
+              Postfix.push(Stack.pop());
+            }
+            Stack.push(char);
+          }
+        }
+
+        while (Stack.length) {
+          Postfix.push(Stack.pop());
+        }
+        return Postfix;
+      }
+
+      function infixToPrefix(rawExp) {
+        let Stack = new LinkedList();
+        let Prefix = [];
+        let exp = removeWhitespace(rawExp);
+
+        let tempExp = exp.replace(/\*\*/g, "🔥");
+
+        let reversedExp = tempExp
+          .split("")
+          .reverse()
+          .map((char) => {
+            if (char === "(") return ")";
+            if (char === ")") return "(";
+            return char;
+          })
+          .join("")
+          .replace(/🔥/g, "**");
+
+        for (let index = 0; index < reversedExp.length; index++) {
+          let char = reversedExp.charAt(index);
+
+          if (
+            char === "*" &&
+            index + 1 < reversedExp.length &&
+            reversedExp.charAt(index + 1) === "*"
+          ) {
+            char = "**";
+            index++;
+          }
+
+          if (char.length === 1 && char.match(/[A-Za-z0-9]/)) {
+            Prefix.push(char);
+          } else if (char == "(") {
+            Stack.push(char);
+          } else if (char == ")") {
+            while (Stack.length && Stack.peek() !== "(") {
+              Prefix.push(Stack.pop());
+            }
+            Stack.pop(); // Discard '('
+          } else {
+            // Notice the > instead of >= for Prefix right associativity handling
+            while (
+              (Stack.length &&
+                getPrecedence(Stack.peek()) > getPrecedence(char)) ||
+              (getPrecedence(Stack.peek()) === getPrecedence(char) &&
+                char === "**")
+            ) {
+              Prefix.push(Stack.pop());
+            }
+            Stack.push(char);
+          }
+        }
+
+        while (Stack.length) {
+          Prefix.push(Stack.pop());
+        }
+
+        // Reverse back the output for final prefix notation
+        return Prefix.reverse();
+      }
+      // --------------------------------------------------
+
+      // Input/Output UI DOM Handling
+      const form = document.getElementById("convertForm");
+      const input = document.getElementById("expressionInput");
+      const outputDisplayPre = document.getElementById("outputDisplayPrefix");
+      const outputDisplayPost = document.getElementById("outputDisplayPostfix");
+
+      function performConversion() {
+        const val = input.value;
+        if (!val) {
+          outputDisplayPre.innerHTML = `<span class="text-gray-400 text-lg">None</span>`;
+          outputDisplayPost.innerHTML = `<span class="text-gray-400 text-lg">None</span>`;
+          return;
+        }
+        const postArr = infixToPostfix(val);
+        outputDisplayPost.textContent = postArr.join(" ");
+
+        const preArr = infixToPrefix(val);
+        outputDisplayPre.textContent = preArr.join(" ");
+      }
+
+      // Initial run for default value (A+(B*C))
+      performConversion();
+
+      // Submit listener
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        performConversion();
+      });
+    </script>
+  </body>
+</html>

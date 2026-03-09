@@ -4,17 +4,14 @@ An interactive collection of data structure and algorithm visualizations built t
 
 ## Workshops Included
 
-1. **[Management Linkedlist](Management%20Linkedlist/)**
+1. **[Management Linkedlist](ManagementLinkedlist/README.md)**
    - Manage and visualize singly linked lists with interactive operations. Explore pushing, popping, shifting, unshifting and node mapping logic explicitly.
 
-2. **[Stack & Queue](Stack%20and%20Queue/)**
+2. **[Stack & Queue](StacknQueue/README.md)**
    - Compare Last-In-First-Out (LIFO) and First-In-First-Out (FIFO) mechanics visually. Includes simultaneous push/pop vs enqueue/dequeue arrays side-by-side.
 
-3. **[Infix Conversion](Infix%20Conversion/)**
-   - Built to handle Shunting Yard algorithms translating Infix mathematical expressions to Prefix and Postfix variants dynamically.
-
-4. **[Quick Sort](Quick%20Sort/)**
-   - Visualizes parallel divide-and-conquer mechanics traversing Fixed Pivot (Ascending) models sequentially frame-by-frame. Tracks pivot selections, bounds testing logic, and round splits.
+3. **[Infix Conversion](InfixConversion/README.md)**
+   - Built to handle Shunting Yard algorithms translating Infix mathematical expressions to Prefix and Postfix variants dynamically. Powered by custom Object-Oriented `LinkedList` structures governing parsing stacks.
 
 ## Running Locally
 
