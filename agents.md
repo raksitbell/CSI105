@@ -79,6 +79,20 @@ the CSI105 Project. It aims to ensure consistency and efficiency in future devel
     - **Visualization Controls**: Zoom In/Out and Center Tree functionality for handling large structures.
     - **User Flow**: Decoupled "Next" button for conversion results before full tree building.
 
+### Binary Search Tree (BST)
+
+- **Operations**: Insert, Search, Delete, and Traversals (Inorder, Preorder, Postorder).
+- **State Recording**: Each structural change (insertion, deletion) or traversal step is recorded with tree snapshots
+  and visual highlights.
+- **Visual Feedback**: Automatically clears success highlights (green) after an operation finishes to maintain a clean
+  state.
+- **Traversal Output**: Real-time display of visited nodes in a "1 -> 2 -> 3" format.
+- **Dynamic Highlights**: Different colors for processing (blue), success/found (green), and error/deletion (red).
+- **Interactive Map**: SVG-based tree with zoom, pan, and centering capabilities.
+- **Playback Controls**: Features Play/Stop, manual Step progression, and Skip to Final Step for quick results.
+- **Collapsible UI**: Grouped operations (Node Operations, Traversals, Step History) into separate collapsible sections
+  to optimize space.
+
 ---
 
 ## 📝 Valuable Prompts & Instructions
