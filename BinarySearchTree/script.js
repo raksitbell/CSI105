@@ -54,6 +54,7 @@ async function insertNode(value) {
     if (root === null) {
         root = new Node(value);
         recordStep(`Create root node with value ${value}`, {[root.id]: 'success'});
+        recordStep(`Operation complete. New root node ${value} added.`, {});
         return;
     }
 
@@ -64,6 +65,7 @@ async function insertNode(value) {
             if (current.left === null) {
                 current.left = new Node(value);
                 recordStep(`${value} < ${current.value}, insert to the left`, {[current.left.id]: 'success'});
+                // Break will move to the final recordStep after loop
                 break;
             }
             current = current.left;
@@ -71,14 +73,18 @@ async function insertNode(value) {
             if (current.right === null) {
                 current.right = new Node(value);
                 recordStep(`${value} > ${current.value}, insert to the right`, {[current.right.id]: 'success'});
+                // Break will move to the final recordStep after loop
                 break;
             }
             current = current.right;
         } else {
             recordStep(`Value ${value} already exists in the tree`, {[current.id]: 'error'});
-            break;
+            // Return here because we don't want the final "Operation complete" success step
+            return;
         }
     }
+    // Record final state with no highlights
+    recordStep(`Operation complete. New node ${value} added to the tree.`, {});
 }
 
 /**
@@ -90,6 +96,7 @@ async function searchNode(value) {
         recordStep(`Compare ${value} with ${current.value}`, {[current.id]: 'processing'});
         if (value === current.value) {
             recordStep(`Found value ${value}!`, {[current.id]: 'success'});
+            recordStep(`Search complete. Found ${value}.`, {});
             return current;
         }
         if (value < current.value) {
@@ -106,7 +113,13 @@ async function searchNode(value) {
  * Deletes a value from the BST and records steps.
  */
 async function deleteNode(value) {
+    if (!root) {
+        recordStep("Tree is empty, nothing to delete", {});
+        return;
+    }
     root = await deleteRecursively(root, value);
+    // Record final tree state after deletion with no highlights
+    recordStep(`Finished deletion process for ${value}. Operation complete.`, {});
 }
 
 async function deleteRecursively(node, value) {
@@ -118,38 +131,67 @@ async function deleteRecursively(node, value) {
     recordStep(`Compare ${value} with ${node.value}`, {[node.id]: 'processing'});
 
     if (value < node.value) {
-        node.left = await deleteRecursively(node.left, value);
+        if (node.left) {
+            node.left = await deleteRecursively(node.left, value);
+        } else {
+            recordStep(`Value ${value} not found in left subtree`, {[node.id]: 'error'});
+        }
         return node;
     } else if (value > node.value) {
-        node.right = await deleteRecursively(node.right, value);
+        if (node.right) {
+            node.right = await deleteRecursively(node.right, value);
+        } else {
+            recordStep(`Value ${value} not found in right subtree`, {[node.id]: 'error'});
+        }
         return node;
     } else {
         // Node found
         recordStep(`Found node ${value} to delete`, {[node.id]: 'error'});
 
         if (!node.left && !node.right) {
-            recordStep(`Node ${value} is a leaf, remove it`, {});
+            recordStep(`Node ${value} is a leaf, removing it...`, {[node.id]: 'error'});
             return null;
         }
         if (!node.left) {
-            recordStep(`Node ${value} has only right child, replace with child`, {[node.right.id]: 'success'});
+            recordStep(`Node ${value} has only right child, replacing with child...`, {
+                [node.id]: 'error',
+                [node.right.id]: 'success'
+            });
             return node.right;
         }
         if (!node.right) {
-            recordStep(`Node ${value} has only left child, replace with child`, {[node.left.id]: 'success'});
+            recordStep(`Node ${value} has only left child, replacing with child...`, {
+                [node.id]: 'error',
+                [node.left.id]: 'success'
+            });
             return node.left;
         }
 
         // Two children: Get inorder successor
-        recordStep(`Node ${value} has two children, find inorder successor`, {[node.id]: 'processing'});
+        recordStep(`Node ${value} has two children, finding inorder successor...`, {[node.id]: 'processing'});
+        let successorParent = node;
         let successor = node.right;
+
         while (successor.left) {
-            recordStep(`Move to left child ${successor.left.value}`, {[successor.left.id]: 'processing'});
+            recordStep(`Moving to left child ${successor.left.value}`, {[successor.left.id]: 'processing'});
+            successorParent = successor;
             successor = successor.left;
         }
-        recordStep(`Inorder successor is ${successor.value}, replace ${value} with ${successor.value}`, {[successor.id]: 'success'});
+
+        recordStep(`Inorder successor is ${successor.value}. Replace ${value} with ${successor.value} and delete successor node.`, {
+            [node.id]: 'success',
+            [successor.id]: 'error'
+        });
+
         node.value = successor.value;
-        node.right = await deleteRecursively(node.right, successor.value);
+
+        // Remove successor node - manual removal to ensure step recording
+        if (successorParent === node) {
+            node.right = successor.right;
+        } else {
+            successorParent.left = successor.right;
+        }
+
         return node;
     }
 }
@@ -201,6 +243,8 @@ async function handleBulkInsert() {
     const input = document.getElementById('bulkInput').value;
     const values = input.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
 
+    if (values.length === 0) return;
+
     for (const val of values) {
         await insertNode(val);
     }
@@ -209,6 +253,15 @@ async function handleBulkInsert() {
         jumpToStep(0);
         startAutoplay();
     }
+}
+
+async function handleRandomInsert() {
+    const randomValues = [];
+    for (let i = 0; i < 10; i++) {
+        randomValues.push(Math.floor(Math.random() * 100) + 1);
+    }
+    document.getElementById('bulkInput').value = randomValues.join(', ');
+    await handleBulkInsert();
 }
 
 async function handleAddNode() {
@@ -247,6 +300,9 @@ function handleTraversal(type) {
     if (type === 'inorder') inorder(root);
     else if (type === 'preorder') preorder(root);
     else if (type === 'postorder') postorder(root);
+
+    // Record final state with no highlights
+    recordStep(`Traversal complete: ${type.charAt(0).toUpperCase() + type.slice(1)}`, {}, traversalResult.join(' -> '));
 
     jumpToStep(0);
     startAutoplay();
@@ -324,7 +380,6 @@ function updatePlaybackUI() {
     } else {
         playIcon.innerHTML = '<path d="M8 5v14l11-7z"></path>';
     }
-    document.getElementById('stepCounter').textContent = `${currentStepIndex + 1}/${steps.length}`;
 }
 
 function togglePlay() {
@@ -369,6 +424,12 @@ function stepForward() {
     }
 }
 
+function skipToFinalStep() {
+    if (steps.length > 0) {
+        jumpToStep(steps.length - 1);
+    }
+}
+
 function jumpToStep(index) {
     stopAutoplay();
     currentStepIndex = index;
@@ -378,25 +439,46 @@ function jumpToStep(index) {
 
 function updateHistoryUI() {
     const historyLog = document.getElementById('historyLog');
-    historyLog.innerHTML = '';
+    const stepCounterBadge = document.getElementById('stepCounterBadge');
 
+    if (stepCounterBadge) {
+        stepCounterBadge.textContent = `${currentStepIndex === -1 ? 0 : currentStepIndex + 1}/${steps.length}`;
+    }
+
+    if (steps.length === 0) {
+        historyLog.innerHTML = `
+            <div class="text-center py-4 text-slate-400">
+                <p class="text-[10px]">No steps recorded</p>
+            </div>
+        `;
+        return;
+    }
+
+    historyLog.innerHTML = '';
     steps.forEach((step, idx) => {
         const isActive = idx === currentStepIndex;
         const item = document.createElement('div');
-        item.className = `history-item p-3 mb-2 rounded-xl border transition-all cursor-pointer text-xs ${
-            isActive ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-100' : 'bg-slate-50 text-slate-600 border-slate-100 hover:border-blue-300'
+        item.className = `p-2 rounded-lg mb-1 cursor-pointer transition-all border text-[11px] ${
+            isActive
+                ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold shadow-sm'
+                : 'bg-white border-slate-100 text-slate-500 hover:bg-slate-50 hover:border-slate-200'
         }`;
         item.onclick = () => jumpToStep(idx);
+
         item.innerHTML = `
             <div class="flex items-center gap-2">
-                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isActive ? 'bg-white/20' : 'bg-slate-200'}">${idx + 1}</span>
-                <span class="font-medium">${step.description}</span>
+                <span class="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-mono shrink-0 ${isActive ? 'bg-blue-200 text-blue-700' : ''}">${idx + 1}</span>
+                <span class="truncate">${step.description}</span>
             </div>
         `;
         historyLog.appendChild(item);
 
         if (isActive) {
-            item.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            const topPos = item.offsetTop - historyLog.offsetTop;
+            historyLog.scrollTo({
+                top: Math.max(0, topPos - 10),
+                behavior: isPlaying ? 'auto' : 'smooth'
+            });
         }
     });
 }

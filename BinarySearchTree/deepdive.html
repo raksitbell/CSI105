@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Binary Search Tree - Deep Dive</title>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="../global.css" rel="stylesheet"/>
+</head>
+<body class="bg-slate-50 font-['Kanit'] min-h-screen">
+<!-- NAV BAR -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-gray-900 block leading-none">BST</span>
+                    <span class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Technical Documentation</span>
+                </div>
+            </div>
+            <a class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+               href="index.html">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                Back <span class="hidden xs:inline">to Visualizer</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-4xl mx-auto px-6 py-12">
+    <div class="space-y-12">
+        <!-- Header -->
+        <section>
+            <h1 class="text-4xl font-bold text-slate-900 mb-4">Binary Search Tree (BST)</h1>
+            <p class="text-lg text-slate-600 leading-relaxed">
+                A Binary Search Tree is a node-based binary tree data structure which has the following properties:
+            </p>
+            <ul class="list-disc list-inside mt-4 space-y-2 text-slate-600 ml-4">
+                <li>The left subtree of a node contains only nodes with keys lesser than the node’s key.</li>
+                <li>The right subtree of a node contains only nodes with keys greater than the node’s key.</li>
+                <li>The left and right subtree each must also be a binary search tree.</li>
+            </ul>
+        </section>
+
+        <!-- Operations -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span class="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-sm">1</span>
+                    Insertion
+                </h3>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Starting from the root, we compare the value to be inserted with the current node's value.
+                    If it's smaller, we move to the left child; if larger, to the right.
+                    We repeat this until we find an empty spot.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-sm">2</span>
+                    Searching
+                </h3>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Similar to insertion, we traverse the tree based on comparisons.
+                    If we find a match, we return the node. If we reach a null child, the value doesn't exist.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span class="w-8 h-8 bg-red-50 text-red-600 rounded-lg flex items-center justify-center text-sm">3</span>
+                    Deletion
+                </h3>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Three cases:
+                    <br>1. Leaf node: Simple removal.
+                    <br>2. One child: Replace node with its child.
+                    <br>3. Two children: Find inorder successor (smallest in right subtree), replace node's value with
+                    successor, and delete successor.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span class="w-8 h-8 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center text-sm">4</span>
+                    Traversals
+                </h3>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    <br><b>Inorder:</b> Left, Root, Right (Results in sorted order).
+                    <br><b>Preorder:</b> Root, Left, Right.
+                    <br><b>Postorder:</b> Left, Right, Root.
+                </p>
+            </div>
+        </section>
+
+        <!-- Complexity -->
+        <section class="bg-slate-900 rounded-3xl p-8 text-white">
+            <h2 class="text-2xl font-bold mb-6">Complexity Analysis</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <p class="text-slate-400 text-sm uppercase tracking-wider font-bold">Average Case</p>
+                    <p class="text-3xl font-mono text-blue-400">O(log n)</p>
+                    <p class="text-xs text-slate-400">For Search, Insert, and Delete.</p>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-slate-400 text-sm uppercase tracking-wider font-bold">Worst Case</p>
+                    <p class="text-3xl font-mono text-red-400">O(n)</p>
+                    <p class="text-xs text-slate-400">Occurs when the tree becomes skewed (like a linked list).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Implementation -->
+        <section>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">Visualization Logic</h2>
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 overflow-hidden">
+                <pre class="text-sm font-mono text-slate-700 overflow-x-auto"><code>/**
+ * We use an async state recording system.
+ * Every structural change or comparison is recorded
+ * as a 'Step' containing a clone of the tree.
+ */
+function recordStep(description, highlights) {
+    steps.push({
+        tree: cloneTree(root),
+        description: description,
+        highlights: highlights
+    });
+}</code></pre>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer class="bg-white border-t border-slate-200 py-8 mt-12">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <p class="text-slate-500 text-sm">CSI105 - Algorithm Visualization Project</p>
+    </div>
+</footer>
+</body>
+</html>
