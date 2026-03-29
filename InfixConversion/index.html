@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Expression Converter - CSI105</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #10b981;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease;
+            margin: 2rem auto;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 2rem;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .result-item {
+            background-color: var(--bg);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .result-value {
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            font-size: 1.125rem;
+            word-break: break-all;
+        }
+
+        .error {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 font-['Kanit'] min-h-screen">
+
+<!-- NAV BAR -->
+<nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-white block leading-none">Expression</span>
+                    <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Converter Tool</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4">
+                <a class="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-600"
+                   href="deepdive.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    <span class="hidden xs:inline">Deep Dive</span>
+                </a>
+                <a class="text-sm font-semibold text-slate-300 hover:text-white transition-colors flex items-center gap-1"
+                   href="../index.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Back <span class="hidden xs:inline">to Workshop</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-10">
+    <h1>Expression Converter</h1>
+    <div class="input-group">
+        <label for="expressionInput">Enter Expression</label>
+        <input
+                autocomplete="off"
+                id="expressionInput"
+                placeholder="e.g., (A+B)*C^D"
+                type="text"
+        />
+        <div class="error" id="errorMessage"></div>
+    </div>
+    <button onclick="convert()">Convert Now</button>
+
+    <div class="results">
+        <div class="result-item">
+            <div class="result-label">Postfix Notation</div>
+            <div class="result-value" id="postfixOutput">-</div>
+        </div>
+        <div class="result-item">
+            <div class="result-label">Prefix Notation</div>
+            <div class="result-value" id="prefixOutput">-</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getPrecedence(operator) {
+        switch (operator) {
+            case "+":
+            case "-":
+                return 1;
+            case "*":
+            case "/":
+                return 2;
+            case "^":
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
+    function isOperator(char) {
+        return ["+", "-", "*", "/", "^"].includes(char);
+    }
+
+    function convertToPostfix(expression) {
+        let stack = [];
+        let postfix = "";
+
+        for (let i = 0; i < expression.length; i++) {
+            let char = expression[i];
+
+            if (/[a-zA-Z0-9]/.test(char)) {
+                postfix += char;
+            } else if (char === "(") {
+                stack.push(char);
+            } else if (char === ")") {
+                while (stack.length > 0 && stack[stack.length - 1] !== "(") {
+                    postfix += stack.pop();
+                }
+                stack.pop();
+            } else if (isOperator(char)) {
+                while (
+                    stack.length > 0 &&
+                    stack[stack.length - 1] !== "(" &&
+                    getPrecedence(stack[stack.length - 1]) >= getPrecedence(char)
+                    ) {
+                    if (char === "^" && stack[stack.length - 1] === "^") {
+                        break;
+                    }
+                    postfix += stack.pop();
+                }
+                stack.push(char);
+            }
+        }
+
+        while (stack.length > 0) {
+            postfix += stack.pop();
+        }
+
+        return postfix;
+    }
+
+    function convertToPrefix(expression) {
+        let stack = [];
+        let prefix = [];
+
+        for (let i = expression.length - 1; i >= 0; i--) {
+            let char = expression.charAt(i);
+
+            if (/[a-zA-Z0-9]/.test(char)) {
+                prefix.push(char);
+            } else if (char === ")") {
+                stack.push(char);
+            } else if (char === "(") {
+                while (stack.length > 0 && stack[stack.length - 1] !== ")") {
+                    prefix.push(stack.pop());
+                }
+                stack.pop();
+            } else if (isOperator(char)) {
+                while (
+                    stack.length > 0 &&
+                    stack[stack.length - 1] !== ")" &&
+                    getPrecedence(stack[stack.length - 1]) > getPrecedence(char)
+                    ) {
+                    prefix.push(stack.pop());
+                }
+                stack.push(char);
+            }
+        }
+
+        while (stack.length > 0) {
+            prefix.push(stack.pop());
+        }
+
+        return prefix.reverse().join("");
+    }
+
+    function convert() {
+        const expressionInput = document.getElementById("expressionInput");
+        const errorEl = document.getElementById("errorMessage");
+        const postfixOutput = document.getElementById("postfixOutput");
+        const prefixOutput = document.getElementById("prefixOutput");
+
+        const input = expressionInput.value.trim();
+
+        errorEl.style.display = "none";
+        postfixOutput.innerText = "-";
+        prefixOutput.innerText = "-";
+
+        if (!input) return;
+
+        const expression = input.replace(/\s+/g, "");
+
+        try {
+            const postfix = convertToPostfix(expression);
+            const prefix = convertToPrefix(expression);
+
+            postfixOutput.innerText = postfix || "-";
+            prefixOutput.innerText = prefix || "-";
+        } catch (e) {
+            errorEl.innerText = "Error: " + e.message;
+            errorEl.style.display = "block";
+        }
+    }
+
+    document
+        .getElementById("expressionInput")
+        .addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                convert();
+            }
+        });
+</script>
+</body>
+</html>

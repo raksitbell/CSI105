@@ -1,0 +1,77 @@
+.bar {
+    width: 40px;
+    min-width: 30px;
+    background: linear-gradient(to top, #3b82f6, #60a5fa);
+    border-radius: 6px 6px 0 0;
+    transition: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 8px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+    position: relative;
+}
+
+/* Mobile responsive bars */
+@media (max-width: 640px) {
+    .bar {
+        width: 28px;
+        min-width: 20px;
+        font-size: 10px;
+        padding-bottom: 4px;
+        border-radius: 4px 4px 0 0;
+    }
+}
+
+/* Tiny mobile responsive bars */
+@media (max-width: 400px) {
+    .bar {
+        width: 22px;
+        min-width: 16px;
+        font-size: 8px;
+        padding-bottom: 2px;
+    }
+}
+
+.bar.comparing {
+    background: linear-gradient(to top, #f59e0b, #fbbf24);
+    box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+}
+
+.bar.swapping {
+    background: linear-gradient(to top, #ef4444, #f87171);
+}
+
+.bar.sorted {
+    background: linear-gradient(to top, #10b981, #34d399);
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}
+
+#visualizerContainer {
+    perspective: 1000px;
+    scrollbar-width: none; /* Firefox */
+}
+
+#visualizerContainer::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+#historyLog::-webkit-scrollbar {
+    width: 6px;
+}
+
+#historyLog::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+#historyLog::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+#historyLog::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

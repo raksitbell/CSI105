@@ -1,0 +1,105 @@
+/* Node Styling */
+.node-circle {
+    fill: #fff;
+    stroke: #e2e8f0;
+    stroke-width: 2px;
+    transition: all 0.3s ease;
+}
+
+.node-text {
+    font-size: 14px;
+    font-weight: 600;
+    fill: #475569;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+/* Edges */
+.edge-line {
+    stroke: #cbd5e1;
+    stroke-width: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Highlight States */
+.node-processing .node-circle {
+    stroke: #3b82f6;
+    fill: #eff6ff;
+    stroke-width: 3px;
+}
+
+.node-processing .node-text {
+    fill: #1d4ed8;
+}
+
+.node-success .node-circle {
+    stroke: #10b981;
+    fill: #ecfdf5;
+    stroke-width: 3px;
+}
+
+.node-success .node-text {
+    fill: #065f46;
+}
+
+.node-error .node-circle {
+    stroke: #ef4444;
+    fill: #fef2f2;
+    stroke-width: 3px;
+}
+
+.node-error .node-text {
+    fill: #991b1b;
+}
+
+/* History Animations */
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.history-item {
+    animation: fadeInSlide 0.3s ease forwards;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    #treeSvg {
+        min-width: 800px;
+        min-height: 800px;
+    }
+
+    .node-circle {
+        r: 18px;
+    }
+
+    .node-text {
+        font-size: 12px;
+    }
+}

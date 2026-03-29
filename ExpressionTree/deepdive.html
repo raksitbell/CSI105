@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Deep Dive: Expression Trees - CSI105</title>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="../global.css" rel="stylesheet"/>
+</head>
+<body class="bg-slate-50 font-['Kanit'] min-h-screen">
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-gray-900 block leading-none">Deep Dive</span>
+                    <span class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Expression Tree Technicals</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <a class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                   href="index.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Back <span class="hidden xs:inline">to Visualizer</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-4xl mx-auto px-6 py-12">
+    <div class="space-y-12">
+        <!-- Introduction -->
+        <section>
+            <h1 class="text-4xl font-bold text-slate-900 mb-6">Understanding Expression Trees</h1>
+            <p class="text-lg text-slate-600 leading-relaxed">
+                An expression tree is a specific kind of binary tree used to represent expressions.
+                The leaves of the tree are operands (such as constants or variable names), and the other
+                internal nodes contain operators.
+            </p>
+        </section>
+
+        <!-- Implementation Details -->
+        <section class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4">How it Works</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-bold text-blue-600 mb-2">1. Infix to Postfix Conversion</h3>
+                    <p class="text-slate-600">
+                        The visualizer first converts the user-provided infix expression (e.g., <code>(a+b)*c</code>)
+                        into postfix notation (e.g., <code>ab+c*</code>) using the Shunting-yard algorithm.
+                        This simplifies the tree construction process as postfix notation removes the need for
+                        parentheses and handles operator precedence.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-blue-600 mb-2">2. Postfix to Tree Construction</h3>
+                    <p class="text-slate-600">
+                        Using a stack, we iterate through the postfix expression:
+                    </p>
+                    <ul class="list-disc list-inside mt-2 text-slate-600 space-y-2 ml-4">
+                        <li>If the token is an <strong>operand</strong>, create a node and push it onto the stack.</li>
+                        <li>If the token is an <strong>operator</strong>, pop two nodes from the stack, make them the
+                            right and left children of a new operator node, and push the operator node back onto the
+                            stack.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Specs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-900 rounded-3xl p-8 text-white">
+                <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <span class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-sm">JS</span>
+                    Implementation
+                </h3>
+                <ul class="space-y-3 text-slate-400 text-sm">
+                    <li class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                        <span>Custom Stack-based algorithm</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                        <span>SVG-based dynamic rendering</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                        <span>Recursive tree traversal for layout</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                        <span>State snapshotting for history</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-blue-600 rounded-3xl p-8 text-white shadow-xl shadow-blue-200">
+                <h3 class="text-xl font-bold mb-4">Complexity Analysis</h3>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-blue-100 text-xs font-bold uppercase tracking-wider">Time Complexity</p>
+                        <p class="text-2xl font-bold">O(n)</p>
+                        <p class="text-blue-100 text-sm">Linear pass through expression</p>
+                    </div>
+                    <div>
+                        <p class="text-blue-100 text-xs font-bold uppercase tracking-wider">Space Complexity</p>
+                        <p class="text-2xl font-bold">O(n)</p>
+                        <p class="text-blue-100 text-sm">Storage for the tree structure</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-white border-t border-slate-200 py-12 mt-12">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+        <p class="text-slate-400 text-sm">Developed for CSI105 - Computer Science Fundamentals</p>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Binary Search Tree Visualization - CSI105</title>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="../global.css" rel="stylesheet"/>
+    <link href="style.css" rel="stylesheet"/>
+</head>
+<body class="bg-slate-50 font-['Kanit'] min-h-screen">
+<!-- NAV BAR -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-gray-900 block leading-none text-blue-600 sm:text-gray-900">Binary Search Tree</span>
+                    <span class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Visualization Tool</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4">
+                <a class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100"
+                   href="deepdive.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    <span class="hidden xs:inline">Deep Dive</span>
+                </a>
+                <a class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                   href="../index.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Back <span class="hidden xs:inline">to Workshop</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-6 py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Controls Panel -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                              stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Controls
+                </h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Bulk Insert</label>
+                        <div class="flex gap-2">
+                            <input
+                                    class="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                    id="bulkInput"
+                                    placeholder="e.g. 50, 30, 70, 20, 40"
+                                    type="text"
+                                    value="50, 30, 70, 20, 40, 60, 80"
+                            />
+                            <button
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-md shadow-blue-100"
+                                    onclick="handleBulkInsert()"
+                            >
+                                Build
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex gap-2">
+                            <input class="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm" id="nodeValue"
+                                   placeholder="Value"
+                                   type="number">
+                            <button class="px-3 py-2 bg-emerald-500 text-white rounded-lg text-sm font-bold hover:bg-emerald-600 transition-all"
+                                    onclick="handleAddNode()">
+                                Add
+                            </button>
+                            <button class="px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-bold hover:bg-blue-600 transition-all"
+                                    onclick="handleSearchNode()">
+                                Search
+                            </button>
+                            <button class="px-3 py-2 bg-red-500 text-white rounded-lg text-sm font-bold hover:bg-red-600 transition-all"
+                                    onclick="handleDeleteNode()">
+                                Del
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-sm font-medium text-slate-600 mb-2">Traversals</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="px-2 py-2 bg-slate-100 text-slate-700 rounded-lg text-[10px] font-bold hover:bg-slate-200 transition-all uppercase tracking-wider"
+                                    onclick="handleTraversal('inorder')">
+                                Inorder
+                            </button>
+                            <button class="px-2 py-2 bg-slate-100 text-slate-700 rounded-lg text-[10px] font-bold hover:bg-slate-200 transition-all uppercase tracking-wider"
+                                    onclick="handleTraversal('preorder')">
+                                Preorder
+                            </button>
+                            <button class="px-2 py-2 bg-slate-100 text-slate-700 rounded-lg text-[10px] font-bold hover:bg-slate-200 transition-all uppercase tracking-wider"
+                                    onclick="handleTraversal('postorder')">
+                                Postorder
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <div class="flex items-center justify-between gap-4">
+                            <button
+                                    class="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-all active:scale-95 group"
+                                    id="playBtn"
+                                    onclick="togglePlay()"
+                            >
+                                <svg class="w-5 h-5" fill="currentColor" id="playIcon" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"></path>
+                                </svg>
+                            </button>
+                            <button
+                                    class="flex-1 py-3 bg-slate-50 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-100 transition-all active:scale-95 flex items-center justify-center gap-2 border border-slate-200"
+                                    id="stepBtn"
+                                    onclick="stepForward()"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M13 5l7 7-7 7M5 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="2"></path>
+                                </svg>
+                                Step
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traversal Output -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 overflow-hidden">
+                <h2 class="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider flex items-center justify-between">
+                    Traversal Result
+                    <button class="text-[10px] text-blue-500 hover:text-blue-700" onclick="clearTraversal()">Clear
+                    </button>
+                </h2>
+                <div class="text-sm font-mono text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 min-h-[50px] break-all leading-relaxed"
+                     id="traversalOutput">
+                    -
+                </div>
+            </div>
+
+            <!-- Steps History -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col max-h-[400px]">
+                <h2 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider flex items-center justify-between">
+                    Step
+                    <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full"
+                          id="stepCounter">0/0</span>
+                </h2>
+                <div class="overflow-y-auto pr-2 custom-scrollbar flex-1" id="historyLog">
+                    <div class="text-center py-8 text-slate-400">
+                        <p class="text-xs">No steps recorded yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualization Canvas -->
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative group h-[600px] sm:h-[700px]">
+                <!-- Floating Controls -->
+                <div class="absolute top-6 right-6 flex flex-col gap-2 z-10 transition-opacity">
+                    <button
+                            class="p-3 bg-white/80 backdrop-blur-md border border-slate-200 rounded-xl shadow-lg hover:bg-white transition-all text-slate-600 hover:text-blue-600 active:scale-95"
+                            onclick="zoomIn()"
+                            title="Zoom In"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"
+                                  stroke-width="2"></path>
+                        </svg>
+                    </button>
+                    <button
+                            class="p-3 bg-white/80 backdrop-blur-md border border-slate-200 rounded-xl shadow-lg hover:bg-white transition-all text-slate-600 hover:text-blue-600 active:scale-95"
+                            onclick="zoomOut()"
+                            title="Zoom Out"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 12H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                    </button>
+                    <button
+                            class="p-3 bg-white/80 backdrop-blur-md border border-slate-200 rounded-xl shadow-lg hover:bg-white transition-all text-slate-600 hover:text-blue-600 active:scale-95"
+                            onclick="centerTree()"
+                            title="Center Tree"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  stroke-width="2"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Tree Container -->
+                <div class="w-full h-full overflow-auto cursor-grab active:cursor-grabbing p-10" id="treeContainer">
+                    <svg class="w-full h-full" id="treeSvg" style="min-width: 1000px; min-height: 1000px;">
+                        <g id="mainGroup"></g>
+                    </svg>
+                </div>
+
+                <!-- Placeholder Message -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 opacity-0"
+                     id="emptyState">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 mx-auto mb-4 shadow-inner">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-700">Ready to Visualize</h3>
+                        <p class="text-sm text-slate-400">Enter numbers and build your tree</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
