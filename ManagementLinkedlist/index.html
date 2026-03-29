@@ -2,146 +2,221 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>LinkedList Management</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../global.css">
-    <link rel="stylesheet" href="style.css">
-    
+    <link href="../global.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
-                    colors: { blue: { 650: '#2563eb' } }
+                    fontFamily: {sans: ['Kanit', 'sans-serif']},
+                    colors: {blue: {650: '#2563eb'}}
                 }
             }
         }
     </script>
 </head>
-<body class="bg-blue-50/30 text-gray-900 font-sans antialiased p-4 md:p-8 min-h-screen relative">
+<body class="bg-blue-50/30 text-gray-900 font-sans antialiased min-h-screen relative">
 
-    <div class="max-w-7xl mx-auto space-y-6">
-        
-        <!-- HEADER -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Workshop : Management Linkedlist</h1>
-                <p class="text-gray-500 text-sm mt-1">Author: 68037294 Raksit Phothong</p>
-            </div>
+<!-- NAV BAR -->
+<nav class="bg-white border-b border-blue-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
             <div class="flex items-center gap-3">
-                <a href="deepdive.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                    Deep Dive
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-gray-900 block leading-none">Linked List</span>
+                    <span class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Management Tool</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4">
+                <a class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100"
+                   href="deepdive.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    <span class="hidden xs:inline">Deep Dive</span>
                 </a>
-                <a href="../index.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Back to Home
+                <a class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                   href="../index.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Back <span class="hidden xs:inline">to Workshop</span>
                 </a>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
-            
-            <!-- TOOLBAR -->
-            <div class="p-4 border-b border-gray-100 flex flex-col lg:flex-row gap-4 items-center justify-between z-20 relative bg-white">
-                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                    <button onclick="toggleActionPanel('create')" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors shadow-sm flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        Create List
-                    </button>
-                </div>
-
-                <div class="flex flex-wrap gap-2 w-full lg:w-auto justify-end items-center">
-                    <span class="text-xs text-gray-400 self-center hidden sm:block mr-2 uppercase tracking-wider font-semibold">Actions</span>
-                    
-                    <button onclick="toggleActionPanel('unshift')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
-                        Unshift
-                    </button>
-
-                    <button onclick="toggleActionPanel('push')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-                        Push
-                    </button>
-
-                    <button onclick="toggleActionPanel('set')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                        Set
-                    </button>
-
-                    <button onclick="toggleActionPanel('get')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        Get Value
-                    </button>
-
-                    <button onclick="toggleActionPanel('details')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                        Details
-                    </button>
-
-                    <div class="w-px h-6 bg-gray-100 mx-1 self-center"></div>
-
-                    <button onclick="toggleActionPanel('shift')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 border border-red-100 transition-colors">
-                        Shift
-                    </button>
-
-                    <button onclick="toggleActionPanel('pop')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 border border-red-100 transition-colors">
-                        Pop
-                    </button>
-
-                    <button onclick="toggleActionPanel('delete')" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm">
-                        Delete
-                    </button>
-                </div>
-            </div>
-
-            <!-- ACTION PANEL -->
-            <div id="actionPanel" class="hidden bg-blue-50/50 border-b border-blue-100">
-                <div class="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div class="flex-1 w-full md:w-auto">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-sm font-bold text-blue-900 uppercase tracking-wide" id="panelActionTitle">Action</span>
-                            <span class="text-xs text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100" id="panelSelectedLists"></span>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2" id="panelInputs">
-                            <input type="text" id="panelListName" class="hidden flex-1 md:flex-none w-full md:w-64 border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2" placeholder="List name">
-                            <input type="number" id="panelIndex" class="hidden w-24 border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2" placeholder="Index">
-                            <input type="text" id="panelValue" class="hidden flex-1 md:flex-none w-full md:w-48 border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2" placeholder="Value">
-                        </div>
-                        <div id="panelDetailsOutput" class="hidden w-full mt-2 bg-white/50 p-3 rounded-lg border border-blue-100 text-xs font-mono text-blue-900 overflow-x-auto"></div>
-                        <p id="panelDescription" class="text-sm text-gray-600 mt-1 hidden"></p>
-                    </div>
-
-                    <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-                        <button onclick="hideActionPanel()" class="text-gray-500 bg-white hover:bg-gray-50 font-medium rounded-lg text-sm px-4 py-2 border border-gray-200 shadow-sm">Cancel</button>
-                        <button onclick="confirmAction()" id="panelConfirmBtn" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 shadow-sm">Confirm</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TABLE SECTION -->
-            <div class="relative overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500">
-                    <thead class="text-xs text-gray-400 uppercase bg-blue-50/50 border-b border-blue-100">
-                        <tr>
-                            <th class="p-4 w-4"><input id="checkbox-all" type="checkbox" class="w-4 h-4 text-blue-600 bg-white border-blue-200 rounded focus:ring-blue-500 cursor-pointer" onclick="toggleAll(this)"></th>
-                            <th class="px-6 py-3 tracking-wider text-gray-700 font-semibold w-1/4">List Name</th>
-                            <th class="px-6 py-3 tracking-wider text-gray-700 font-semibold w-3/4">Data Structure</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listBody" class="divide-y divide-blue-50"></tbody>
-                </table>
-                <div id="emptyState" class="hidden p-12 text-center text-gray-400">
-                    <p class="text-lg">No linked lists created yet.</p>
-                </div>
             </div>
         </div>
     </div>
+</nav>
 
-    <div id="toastContainer"></div>
-    <script src="script.js"></script>
+<div class="max-w-7xl mx-auto space-y-6 p-4 md:p-8">
+
+    <!-- HEADER (REMOVED) -->
+
+    <div class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
+
+        <!-- TOOLBAR -->
+        <div class="p-4 border-b border-gray-100 flex flex-col lg:flex-row gap-4 items-center justify-between z-20 relative bg-white">
+            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                <button class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors shadow-sm flex items-center gap-2"
+                        onclick="toggleActionPanel('create')">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    Create List
+                </button>
+            </div>
+
+            <div class="flex flex-wrap gap-2 w-full lg:w-auto justify-end items-center">
+                <span class="text-xs text-gray-400 self-center hidden sm:block mr-2 uppercase tracking-wider font-semibold">Actions</span>
+
+                <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors"
+                        onclick="toggleActionPanel('unshift')">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M11 19l-7-7 7-7m8 14l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Unshift
+                </button>
+
+                <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors"
+                        onclick="toggleActionPanel('push')">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M13 5l7 7-7 7M5 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Push
+                </button>
+
+                <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors"
+                        onclick="toggleActionPanel('set')">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                              stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Set
+                </button>
+
+                <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors"
+                        onclick="toggleActionPanel('get')">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Get Value
+                </button>
+
+                <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm transition-colors"
+                        onclick="toggleActionPanel('details')">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Details
+                </button>
+
+                <div class="w-px h-6 bg-gray-100 mx-1 self-center"></div>
+
+                <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 border border-red-100 transition-colors"
+                        onclick="toggleActionPanel('shift')">
+                    Shift
+                </button>
+
+                <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 border border-red-100 transition-colors"
+                        onclick="toggleActionPanel('pop')">
+                    Pop
+                </button>
+
+                <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+                        onclick="toggleActionPanel('delete')">
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- ACTION PANEL -->
+        <div class="hidden bg-blue-50/50 border-b border-blue-100" id="actionPanel">
+            <div class="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex-1 w-full md:w-auto">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-sm font-bold text-blue-900 uppercase tracking-wide" id="panelActionTitle">Action</span>
+                        <span class="text-xs text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100"
+                              id="panelSelectedLists"></span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2" id="panelInputs">
+                        <input class="hidden flex-1 md:flex-none w-full md:w-64 border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2"
+                               id="panelListName"
+                               placeholder="List name"
+                               type="text">
+                        <input class="hidden w-24 border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2"
+                               id="panelIndex"
+                               placeholder="Index"
+                               type="number">
+                        <input class="hidden flex-1 md:flex-none w-full md:w-48 border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2"
+                               id="panelValue"
+                               placeholder="Value"
+                               type="text">
+                    </div>
+                    <div class="hidden w-full mt-2 bg-white/50 p-3 rounded-lg border border-blue-100 text-xs font-mono text-blue-900 overflow-x-auto"
+                         id="panelDetailsOutput"></div>
+                    <p class="text-sm text-gray-600 mt-1 hidden" id="panelDescription"></p>
+                </div>
+
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <button class="text-gray-500 bg-white hover:bg-gray-50 font-medium rounded-lg text-sm px-4 py-2 border border-gray-200 shadow-sm"
+                            onclick="hideActionPanel()">
+                        Cancel
+                    </button>
+                    <button class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 shadow-sm"
+                            id="panelConfirmBtn"
+                            onclick="confirmAction()">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE SECTION -->
+        <div class="relative overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-400 uppercase bg-blue-50/50 border-b border-blue-100">
+                <tr>
+                    <th class="p-4 w-4"><input
+                            class="w-4 h-4 text-blue-600 bg-white border-blue-200 rounded focus:ring-blue-500 cursor-pointer"
+                            id="checkbox-all"
+                            onclick="toggleAll(this)"
+                            type="checkbox"></th>
+                    <th class="px-6 py-3 tracking-wider text-gray-700 font-semibold w-1/4">List Name</th>
+                    <th class="px-6 py-3 tracking-wider text-gray-700 font-semibold w-3/4">Data Structure</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-blue-50" id="listBody"></tbody>
+            </table>
+            <div class="hidden p-12 text-center text-gray-400" id="emptyState">
+                <p class="text-lg">No linked lists created yet.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer"></div>
+<script src="script.js"></script>
 </body>
 </html>

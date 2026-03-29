@@ -2,221 +2,348 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Deep Dive: Stack & Queue</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../global.css">
+    <link href="../global.css" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Kanit', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
-                    colors: { blue: { 650: '#2563eb' } }
+                    fontFamily: {sans: ['Kanit', 'sans-serif'], mono: ['Fira Code', 'monospace']},
+                    colors: {blue: {650: '#2563eb'}}
                 }
             }
         }
     </script>
     <style>
-        .code-block { background: #0f172a; color: #e2e8f0; border-radius: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .code-block .keyword { color: #c084fc; }
-        .code-block .string { color: #34d399; }
-        .code-block .comment { color: #64748b; }
-        .code-block .function { color: #60a5fa; }
-        .code-block .class-name { color: #fbbf24; }
-        .code-block .number { color: #f472b6; }
-        .code-block .null { color: #fb923c; }
+        .code-block {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-        .step-card { counter-increment: step; position: relative; }
+        .code-block .keyword {
+            color: #c084fc;
+        }
+
+        .code-block .string {
+            color: #34d399;
+        }
+
+        .code-block .comment {
+            color: #64748b;
+        }
+
+        .code-block .function {
+            color: #60a5fa;
+        }
+
+        .code-block .class-name {
+            color: #fbbf24;
+        }
+
+        .code-block .number {
+            color: #f472b6;
+        }
+
+        .code-block .null {
+            color: #fb923c;
+        }
+
+        .step-card {
+            counter-increment: step;
+            position: relative;
+        }
+
         .step-num {
-            display: flex; align-items: center; justify-content: center;
-            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            flex-shrink: 0;
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white; font-weight: 700; font-size: 14px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
         }
-        .step-num::after { content: counter(step); }
 
-        .step-connector { position: relative; }
-        .step-connector::before {
-            content: ''; position: absolute; left: 17px; top: 44px; bottom: -12px;
-            width: 2px; background: linear-gradient(to bottom, #3b82f6, #dbeafe);
+        .step-num::after {
+            content: counter(step);
         }
-        .step-connector:last-child::before { display: none; }
+
+        .step-connector {
+            position: relative;
+        }
+
+        .step-connector::before {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 44px;
+            bottom: -12px;
+            width: 2px;
+            background: linear-gradient(to bottom, #3b82f6, #dbeafe);
+        }
+
+        .step-connector:last-child::before {
+            display: none;
+        }
 
         @media (min-width: 768px) {
-            .step-num { width: 40px; height: 40px; font-size: 16px; }
-            .step-connector::before { left: 19px; top: 48px; }
+            .step-num {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .step-connector::before {
+                left: 19px;
+                top: 48px;
+            }
         }
 
         .item-anim {
-            animation: fadeUp 0.5s ease-out forwards; opacity: 0;
+            animation: fadeUp 0.5s ease-out forwards;
+            opacity: 0;
         }
-        .item-anim:nth-child(1) { animation-delay: 0.1s; }
-        .item-anim:nth-child(2) { animation-delay: 0.2s; }
-        .item-anim:nth-child(3) { animation-delay: 0.3s; }
-        .item-anim:nth-child(4) { animation-delay: 0.4s; }
-        .item-anim:nth-child(5) { animation-delay: 0.5s; }
+
+        .item-anim:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .item-anim:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .item-anim:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .item-anim:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .item-anim:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body class="bg-blue-50/30 text-gray-900 font-sans antialiased min-h-screen" style="counter-reset: step;">
 
-    <!-- HEADER -->
-    <div class="bg-white border-b border-blue-100 sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-                <a href="index.html" class="text-blue-600 hover:text-blue-800 transition-colors flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </a>
-                <div class="min-w-0">
-                    <h1 class="text-base sm:text-lg font-bold text-gray-900 truncate">Deep Dive: Stack & Queue</h1>
-                    <p class="text-[10px] sm:text-xs text-gray-400 hidden sm:block">How this project works — step by step</p>
+<!-- NAV BAR -->
+<nav class="bg-white border-b border-blue-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-gray-900 block leading-none">Deep Dive</span>
+                    <span class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Stack & Queue Tool</span>
                 </div>
             </div>
-            <span class="text-[10px] sm:text-xs bg-blue-50 text-blue-600 font-semibold px-2 sm:px-3 py-1 rounded-full border border-blue-100 flex-shrink-0">CSI105T</span>
+            <div class="flex items-center gap-2 sm:gap-4">
+                <a class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                   href="index.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Back <span class="hidden xs:inline">to Visualizer</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-10 space-y-8 sm:space-y-12">
+
+    <!-- INTRO -->
+    <div class="text-center space-y-3 sm:space-y-4">
+        <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"></path>
+            </svg>
+            Tech Deep Dive
+        </div>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">How the Stack & Queue Page Works</h2>
+        <p class="text-gray-500 text-sm sm:text-base max-w-2xl mx-auto">This page breaks down the Stack & Queue workshop
+            step by step. You'll see the <strong>real code</strong> from this project and learn how each data structure
+            works under the hood.</p>
+    </div>
+
+    <!-- WHAT ARE STACK & QUEUE -->
+    <div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+            <span class="text-xl sm:text-2xl">🧠</span> Stack vs Queue — What's the Difference?
+        </h3>
+        <p class="text-gray-600 text-sm sm:text-base leading-relaxed">Both Stack and Queue store a collection of items.
+            The key difference is <strong>how items are removed</strong>.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- STACK VISUAL -->
+            <div class="bg-blue-50/50 rounded-xl p-3 sm:p-5 space-y-2 sm:space-y-3">
+                <div class="flex items-center gap-2 mb-1 sm:mb-2 flex-wrap">
+                    <span class="text-base sm:text-lg">🥞</span>
+                    <h4 class="font-bold text-gray-900 text-sm sm:text-base">Stack — LIFO</h4>
+                    <span class="text-[10px] sm:text-xs bg-blue-100 text-blue-700 px-1.5 sm:px-2 py-0.5 rounded-full font-semibold">Last In, First Out</span>
+                </div>
+                <p class="text-gray-500 text-xs sm:text-sm">Like a stack of plates — you always take the
+                    <strong>top</strong> one.</p>
+                <div class="flex flex-col items-center gap-1 py-1 sm:py-2">
+                    <div class="item-anim bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-4 sm:px-6 py-1.5 sm:py-2 text-center shadow-sm relative text-xs sm:text-sm w-24 sm:w-28">
+                        "C"
+                        <span class="absolute -top-2 -right-2 bg-blue-500 text-white text-[8px] sm:text-[9px] uppercase font-bold px-1 sm:px-1.5 py-0.5 rounded-full">Top</span>
+                    </div>
+                    <div class="item-anim bg-white border-2 border-blue-200 rounded-md px-4 sm:px-6 py-1.5 sm:py-2 text-center shadow-sm font-bold text-gray-700 text-xs sm:text-sm w-24 sm:w-28">
+                        "B"
+                    </div>
+                    <div class="item-anim bg-white border-2 border-blue-200 rounded-md px-4 sm:px-6 py-1.5 sm:py-2 text-center shadow-sm font-bold text-gray-700 text-xs sm:text-sm w-24 sm:w-28">
+                        "A"
+                    </div>
+                </div>
+                <p class="text-center text-[10px] sm:text-xs text-gray-400">↑ push/pop from here</p>
+            </div>
+
+            <!-- QUEUE VISUAL -->
+            <div class="bg-blue-50/50 rounded-xl p-3 sm:p-5 space-y-2 sm:space-y-3">
+                <div class="flex items-center gap-2 mb-1 sm:mb-2 flex-wrap">
+                    <span class="text-base sm:text-lg">🚶‍♂️</span>
+                    <h4 class="font-bold text-gray-900 text-sm sm:text-base">Queue — FIFO</h4>
+                    <span class="text-[10px] sm:text-xs bg-blue-100 text-blue-700 px-1.5 sm:px-2 py-0.5 rounded-full font-semibold">First In, First Out</span>
+                </div>
+                <p class="text-gray-500 text-xs sm:text-sm">Like a line at a shop — first person served first.</p>
+                <div class="flex items-center justify-center gap-1 py-1 sm:py-2 flex-wrap">
+                    <div class="item-anim bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-3 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm relative text-xs sm:text-sm">
+                        "A"
+                        <span class="absolute -top-2 -left-0.5 bg-blue-500 text-white text-[8px] sm:text-[9px] uppercase font-bold px-1 sm:px-1.5 py-0.5 rounded-full">Front</span>
+                    </div>
+                    <span class="text-blue-400 font-bold text-sm sm:text-base">→</span>
+                    <div class="item-anim bg-white border-2 border-blue-200 rounded-md px-3 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm font-bold text-gray-700 text-xs sm:text-sm">
+                        "B"
+                    </div>
+                    <span class="text-blue-400 font-bold text-sm sm:text-base">→</span>
+                    <div class="item-anim bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-3 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm relative text-xs sm:text-sm">
+                        "C"
+                        <span class="absolute -top-2 -right-0.5 bg-blue-500 text-white text-[8px] sm:text-[9px] uppercase font-bold px-1 sm:px-1.5 py-0.5 rounded-full">Rear</span>
+                    </div>
+                </div>
+                <p class="text-center text-[10px] sm:text-xs text-gray-400">← dequeue &nbsp; enqueue →</p>
+            </div>
         </div>
     </div>
 
-    <div class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-10 space-y-8 sm:space-y-12">
+    <!-- STEP-BY-STEP -->
+    <div class="space-y-3">
+        <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Step-by-Step: How The Code Works</h3>
 
-        <!-- INTRO -->
-        <div class="text-center space-y-3 sm:space-y-4">
-            <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                Tech Deep Dive
-            </div>
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">How the Stack & Queue Page Works</h2>
-            <p class="text-gray-500 text-sm sm:text-base max-w-2xl mx-auto">This page breaks down the Stack & Queue workshop step by step. You'll see the <strong>real code</strong> from this project and learn how each data structure works under the hood.</p>
-        </div>
-
-        <!-- WHAT ARE STACK & QUEUE -->
-        <div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
-            <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-                <span class="text-xl sm:text-2xl">🧠</span> Stack vs Queue — What's the Difference?
-            </h3>
-            <p class="text-gray-600 text-sm sm:text-base leading-relaxed">Both Stack and Queue store a collection of items. The key difference is <strong>how items are removed</strong>.</p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <!-- STACK VISUAL -->
-                <div class="bg-blue-50/50 rounded-xl p-3 sm:p-5 space-y-2 sm:space-y-3">
-                    <div class="flex items-center gap-2 mb-1 sm:mb-2 flex-wrap">
-                        <span class="text-base sm:text-lg">🥞</span>
-                        <h4 class="font-bold text-gray-900 text-sm sm:text-base">Stack — LIFO</h4>
-                        <span class="text-[10px] sm:text-xs bg-blue-100 text-blue-700 px-1.5 sm:px-2 py-0.5 rounded-full font-semibold">Last In, First Out</span>
-                    </div>
-                    <p class="text-gray-500 text-xs sm:text-sm">Like a stack of plates — you always take the <strong>top</strong> one.</p>
-                    <div class="flex flex-col items-center gap-1 py-1 sm:py-2">
-                        <div class="item-anim bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-4 sm:px-6 py-1.5 sm:py-2 text-center shadow-sm relative text-xs sm:text-sm w-24 sm:w-28">
-                            "C"
-                            <span class="absolute -top-2 -right-2 bg-blue-500 text-white text-[8px] sm:text-[9px] uppercase font-bold px-1 sm:px-1.5 py-0.5 rounded-full">Top</span>
-                        </div>
-                        <div class="item-anim bg-white border-2 border-blue-200 rounded-md px-4 sm:px-6 py-1.5 sm:py-2 text-center shadow-sm font-bold text-gray-700 text-xs sm:text-sm w-24 sm:w-28">"B"</div>
-                        <div class="item-anim bg-white border-2 border-blue-200 rounded-md px-4 sm:px-6 py-1.5 sm:py-2 text-center shadow-sm font-bold text-gray-700 text-xs sm:text-sm w-24 sm:w-28">"A"</div>
-                    </div>
-                    <p class="text-center text-[10px] sm:text-xs text-gray-400">↑ push/pop from here</p>
-                </div>
-
-                <!-- QUEUE VISUAL -->
-                <div class="bg-blue-50/50 rounded-xl p-3 sm:p-5 space-y-2 sm:space-y-3">
-                    <div class="flex items-center gap-2 mb-1 sm:mb-2 flex-wrap">
-                        <span class="text-base sm:text-lg">🚶‍♂️</span>
-                        <h4 class="font-bold text-gray-900 text-sm sm:text-base">Queue — FIFO</h4>
-                        <span class="text-[10px] sm:text-xs bg-blue-100 text-blue-700 px-1.5 sm:px-2 py-0.5 rounded-full font-semibold">First In, First Out</span>
-                    </div>
-                    <p class="text-gray-500 text-xs sm:text-sm">Like a line at a shop — first person served first.</p>
-                    <div class="flex items-center justify-center gap-1 py-1 sm:py-2 flex-wrap">
-                        <div class="item-anim bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-3 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm relative text-xs sm:text-sm">
-                            "A"
-                            <span class="absolute -top-2 -left-0.5 bg-blue-500 text-white text-[8px] sm:text-[9px] uppercase font-bold px-1 sm:px-1.5 py-0.5 rounded-full">Front</span>
-                        </div>
-                        <span class="text-blue-400 font-bold text-sm sm:text-base">→</span>
-                        <div class="item-anim bg-white border-2 border-blue-200 rounded-md px-3 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm font-bold text-gray-700 text-xs sm:text-sm">"B"</div>
-                        <span class="text-blue-400 font-bold text-sm sm:text-base">→</span>
-                        <div class="item-anim bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-3 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm relative text-xs sm:text-sm">
-                            "C"
-                            <span class="absolute -top-2 -right-0.5 bg-blue-500 text-white text-[8px] sm:text-[9px] uppercase font-bold px-1 sm:px-1.5 py-0.5 rounded-full">Rear</span>
-                        </div>
-                    </div>
-                    <p class="text-center text-[10px] sm:text-xs text-gray-400">← dequeue &nbsp; enqueue →</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- STEP-BY-STEP -->
-        <div class="space-y-3">
-            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Step-by-Step: How The Code Works</h3>
-
-            <!-- STEP 1: Stack Class -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Build the Stack Class</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            A Stack uses a simple array internally. <code class="text-blue-600">push()</code> adds to the end and <code class="text-blue-600">pop()</code> removes from the end — LIFO. <code class="text-blue-600">top()</code> peeks at the top without removing.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 1: Stack Class -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Build the Stack Class</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        A Stack uses a simple array internally. <code class="text-blue-600">push()</code> adds to the
+                        end and <code class="text-blue-600">pop()</code> removes from the end — LIFO. <code
+                            class="text-blue-600">top()</code> peeks at the top without removing.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — The Stack class</span>
 <span class="keyword">class</span> <span class="class-name">Stack</span> {
     <span class="function">constructor</span>() { <span class="keyword">this</span>.items = []; }
 
-    <span class="function">push</span>(val)  { <span class="keyword">this</span>.items.<span class="function">push</span>(val); }
-    <span class="function">pop</span>()      { <span class="keyword">return</span> <span class="keyword">this</span>.items.<span class="function">pop</span>(); }
-    <span class="function">top</span>()      { <span class="keyword">return</span> <span class="keyword">this</span>.items[<span class="keyword">this</span>.items.length - <span class="number">1</span>]; }
+    <span class="function">push</span>(val)  { <span class="keyword">this</span>.items.<span
+            class="function">push</span>(val); }
+    <span class="function">pop</span>()      { <span class="keyword">return</span> <span class="keyword">this</span>.items.<span
+            class="function">pop</span>(); }
+    <span class="function">top</span>()      { <span class="keyword">return</span> <span class="keyword">this</span>.items[<span
+            class="keyword">this</span>.items.length - <span class="number">1</span>]; }
     <span class="function">clear</span>()    { <span class="keyword">this</span>.items = []; }
-    <span class="function">isEmpty</span>()  { <span class="keyword">return</span> <span class="keyword">this</span>.items.length === <span class="number">0</span>; }
+    <span class="function">isEmpty</span>()  { <span class="keyword">return</span> <span class="keyword">this</span>.items.length === <span
+            class="number">0</span>; }
 }</pre>
-                        </div>
-                        <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
-                            💡 <strong>Think of it like this:</strong> A stack of books — you can only add or remove from the <strong>top</strong>.
-                        </div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
+                        💡 <strong>Think of it like this:</strong> A stack of books — you can only add or remove from the
+                        <strong>top</strong>.
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 2: Queue Class -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Build the Queue Class</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            A Queue removes from the <strong>front</strong> using <code class="text-blue-600">shift()</code>. <code class="text-blue-600">enqueue()</code> adds to the rear, <code class="text-blue-600">dequeue()</code> removes from the front — FIFO. <code class="text-blue-600">front()</code> and <code class="text-blue-600">rear()</code> peek at both ends.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 2: Queue Class -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Build the Queue Class</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        A Queue removes from the <strong>front</strong> using <code class="text-blue-600">shift()</code>.
+                        <code class="text-blue-600">enqueue()</code> adds to the rear, <code class="text-blue-600">dequeue()</code>
+                        removes from the front — FIFO. <code class="text-blue-600">front()</code> and <code
+                            class="text-blue-600">rear()</code> peek at both ends.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — The Queue class</span>
 <span class="keyword">class</span> <span class="class-name">Queue</span> {
     <span class="function">constructor</span>() { <span class="keyword">this</span>.items = []; }
 
-    <span class="function">enqueue</span>(val) { <span class="keyword">this</span>.items.<span class="function">push</span>(val); }
-    <span class="function">dequeue</span>()    { <span class="keyword">return</span> <span class="keyword">this</span>.items.<span class="function">shift</span>(); }
-    <span class="function">front</span>()      { <span class="keyword">return</span> <span class="keyword">this</span>.items[<span class="number">0</span>]; }
-    <span class="function">rear</span>()       { <span class="keyword">return</span> <span class="keyword">this</span>.items[<span class="keyword">this</span>.items.length - <span class="number">1</span>]; }
+    <span class="function">enqueue</span>(val) { <span class="keyword">this</span>.items.<span
+            class="function">push</span>(val); }
+    <span class="function">dequeue</span>()    { <span class="keyword">return</span> <span class="keyword">this</span>.items.<span
+            class="function">shift</span>(); }
+    <span class="function">front</span>()      { <span class="keyword">return</span> <span class="keyword">this</span>.items[<span
+            class="number">0</span>]; }
+    <span class="function">rear</span>()       { <span class="keyword">return</span> <span class="keyword">this</span>.items[<span
+            class="keyword">this</span>.items.length - <span class="number">1</span>]; }
     <span class="function">clear</span>()      { <span class="keyword">this</span>.items = []; }
-    <span class="function">isEmpty</span>()    { <span class="keyword">return</span> <span class="keyword">this</span>.items.length === <span class="number">0</span>; }
+    <span class="function">isEmpty</span>()    { <span class="keyword">return</span> <span class="keyword">this</span>.items.length === <span
+            class="number">0</span>; }
 }</pre>
-                        </div>
-                        <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
-                            💡 <strong>Think of it like this:</strong> A queue at a ticket booth — the first person in line gets served first.
-                        </div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
+                        💡 <strong>Think of it like this:</strong> A queue at a ticket booth — the first person in line
+                        gets served first.
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 3: Push vs Enqueue -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Push (Stack) vs Enqueue (Queue)</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            Both add an item. The <code class="text-blue-600">addToBoth()</code> function lets you add the same value to both structures at once to compare behavior.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 3: Push vs Enqueue -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Push (Stack) vs Enqueue (Queue)</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        Both add an item. The <code class="text-blue-600">addToBoth()</code> function lets you add the
+                        same value to both structures at once to compare behavior.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — add to both</span>
 window.<span class="function">addToBoth</span> = () => {
     <span class="keyword">const</span> val = <span class="function">getInput</span>();
@@ -225,99 +352,140 @@ window.<span class="function">addToBoth</span> = () => {
     queue.<span class="function">enqueue</span>(val);    <span class="comment">// → REAR</span>
     <span class="function">save</span>(); <span class="function">render</span>();
 };</pre>
-                        </div>
+                    </div>
 
-                        <!-- VISUAL -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                            <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
-                                <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Stack: push("D")</p>
-                                <div class="flex flex-col items-center gap-1">
-                                    <div class="bg-green-50 border-2 border-green-400 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-green-600 text-xs sm:text-sm ring-2 ring-green-200">D ✨ ← Top</div>
-                                    <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">C</div>
-                                    <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">B</div>
-                                    <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">A</div>
+                    <!-- VISUAL -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
+                            <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                                Stack: push("D")</p>
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="bg-green-50 border-2 border-green-400 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-green-600 text-xs sm:text-sm ring-2 ring-green-200">
+                                    D ✨ ← Top
+                                </div>
+                                <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    C
+                                </div>
+                                <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    B
+                                </div>
+                                <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    A
                                 </div>
                             </div>
-                            <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
-                                <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Queue: enqueue("D")</p>
-                                <div class="flex items-center justify-center gap-1 flex-wrap">
-                                    <div class="bg-white border border-blue-200 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">A</div>
-                                    <span class="text-blue-300 text-xs sm:text-sm">→</span>
-                                    <div class="bg-white border border-blue-200 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">B</div>
-                                    <span class="text-blue-300 text-xs sm:text-sm">→</span>
-                                    <div class="bg-white border border-blue-200 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">C</div>
-                                    <span class="text-blue-300 text-xs sm:text-sm">→</span>
-                                    <div class="bg-green-50 border-2 border-green-400 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-green-600 text-xs sm:text-sm ring-2 ring-green-200">D ✨</div>
+                        </div>
+                        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
+                            <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                                Queue: enqueue("D")</p>
+                            <div class="flex items-center justify-center gap-1 flex-wrap">
+                                <div class="bg-white border border-blue-200 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    A
                                 </div>
-                                <p class="text-center text-[9px] sm:text-[10px] text-gray-400">Front ← → Rear</p>
+                                <span class="text-blue-300 text-xs sm:text-sm">→</span>
+                                <div class="bg-white border border-blue-200 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    B
+                                </div>
+                                <span class="text-blue-300 text-xs sm:text-sm">→</span>
+                                <div class="bg-white border border-blue-200 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    C
+                                </div>
+                                <span class="text-blue-300 text-xs sm:text-sm">→</span>
+                                <div class="bg-green-50 border-2 border-green-400 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-green-600 text-xs sm:text-sm ring-2 ring-green-200">
+                                    D ✨
+                                </div>
                             </div>
+                            <p class="text-center text-[9px] sm:text-[10px] text-gray-400">Front ← → Rear</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 4: Pop vs Dequeue -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Pop (Stack) vs Dequeue (Queue)</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            <code class="text-blue-600">pop()</code> removes from the <strong>top</strong> (last added), while <code class="text-blue-600">dequeue()</code> removes from the <strong>front</strong> (first added). Same data, different removal order.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 4: Pop vs Dequeue -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Pop (Stack) vs Dequeue (Queue)</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        <code class="text-blue-600">pop()</code> removes from the <strong>top</strong> (last added),
+                        while <code class="text-blue-600">dequeue()</code> removes from the <strong>front</strong>
+                        (first added). Same data, different removal order.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — removing items</span>
 window.<span class="function">popStack</span> = () => {
-    <span class="keyword">if</span> (stack.<span class="function">isEmpty</span>()) <span class="keyword">return</span> <span class="function">showToast</span>(<span class="string">"Stack Empty"</span>, <span class="string">"error"</span>);
+    <span class="keyword">if</span> (stack.<span class="function">isEmpty</span>()) <span class="keyword">return</span> <span
+            class="function">showToast</span>(<span class="string">"Stack Empty"</span>, <span
+            class="string">"error"</span>);
     stack.<span class="function">pop</span>();    <span class="comment">// removes TOP</span>
     <span class="function">save</span>(); <span class="function">render</span>();
 };
 
 window.<span class="function">dequeueQueue</span> = () => {
-    <span class="keyword">if</span> (queue.<span class="function">isEmpty</span>()) <span class="keyword">return</span> <span class="function">showToast</span>(<span class="string">"Queue Empty"</span>, <span class="string">"error"</span>);
+    <span class="keyword">if</span> (queue.<span class="function">isEmpty</span>()) <span class="keyword">return</span> <span
+            class="function">showToast</span>(<span class="string">"Queue Empty"</span>, <span
+            class="string">"error"</span>);
     queue.<span class="function">dequeue</span>(); <span class="comment">// removes FRONT</span>
     <span class="function">save</span>(); <span class="function">render</span>();
 };</pre>
-                        </div>
+                    </div>
 
-                        <!-- VISUAL -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                            <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
-                                <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Stack: pop() → "D"</p>
-                                <div class="flex flex-col items-center gap-1">
-                                    <div class="bg-red-50 border-2 border-red-300 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-red-400 text-xs sm:text-sm line-through opacity-60">D ❌</div>
-                                    <div class="bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-sm relative">C <span class="text-[8px] sm:text-[9px] ml-0.5 opacity-80">← Top</span></div>
-                                    <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">B</div>
-                                    <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">A</div>
+                    <!-- VISUAL -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
+                            <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                                Stack: pop() → "D"</p>
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="bg-red-50 border-2 border-red-300 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-red-400 text-xs sm:text-sm line-through opacity-60">
+                                    D ❌
+                                </div>
+                                <div class="bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-sm relative">
+                                    C <span class="text-[8px] sm:text-[9px] ml-0.5 opacity-80">← Top</span></div>
+                                <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    B
+                                </div>
+                                <div class="bg-white border border-blue-200 rounded-md px-4 sm:px-5 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    A
                                 </div>
                             </div>
-                            <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
-                                <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Queue: dequeue() → "A"</p>
-                                <div class="flex items-center justify-center gap-1 flex-wrap">
-                                    <div class="bg-red-50 border-2 border-red-300 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-red-400 text-xs sm:text-sm line-through opacity-60">A ❌</div>
-                                    <span class="text-gray-300 text-xs sm:text-sm">→</span>
-                                    <div class="bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm">B <span class="text-[8px] sm:text-[9px] opacity-80">Front</span></div>
-                                    <span class="text-blue-300 text-xs sm:text-sm">→</span>
-                                    <div class="bg-white border border-blue-200 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">C</div>
-                                    <span class="text-blue-300 text-xs sm:text-sm">→</span>
-                                    <div class="bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm">D <span class="text-[8px] sm:text-[9px] opacity-80">Rear</span></div>
+                        </div>
+                        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
+                            <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                                Queue: dequeue() → "A"</p>
+                            <div class="flex items-center justify-center gap-1 flex-wrap">
+                                <div class="bg-red-50 border-2 border-red-300 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-red-400 text-xs sm:text-sm line-through opacity-60">
+                                    A ❌
                                 </div>
+                                <span class="text-gray-300 text-xs sm:text-sm">→</span>
+                                <div class="bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm">
+                                    B <span class="text-[8px] sm:text-[9px] opacity-80">Front</span></div>
+                                <span class="text-blue-300 text-xs sm:text-sm">→</span>
+                                <div class="bg-white border border-blue-200 rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-gray-700 text-xs sm:text-sm">
+                                    C
+                                </div>
+                                <span class="text-blue-300 text-xs sm:text-sm">→</span>
+                                <div class="bg-blue-600 border-2 border-blue-700 text-white font-bold rounded-md px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm">
+                                    D <span class="text-[8px] sm:text-[9px] opacity-80">Rear</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 5: Peek -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Peek — Look Without Removing</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            <code class="text-blue-600">top()</code> shows the stack's top, <code class="text-blue-600">front()</code> the queue's first item, <code class="text-blue-600">rear()</code> the last. None remove the item.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 5: Peek -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Peek — Look Without Removing</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        <code class="text-blue-600">top()</code> shows the stack's top, <code class="text-blue-600">front()</code>
+                        the queue's first item, <code class="text-blue-600">rear()</code> the last. None remove the
+                        item.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — peek operations</span>
 window.<span class="function">peekStack</span> = () =>
     stack.<span class="function">isEmpty</span>()
@@ -333,39 +501,47 @@ window.<span class="function">peekQueueRear</span> = () =>
     queue.<span class="function">isEmpty</span>()
         ? <span class="function">showToast</span>(<span class="string">"Queue Empty"</span>, <span class="string">"error"</span>)
         : <span class="function">showToast</span>(`Rear: ${queue.<span class="function">rear</span>()}`);</pre>
-                        </div>
+                    </div>
 
-                        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
-                            <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Visual: Peeking at [A, B, C]</p>
-                            <div class="grid grid-cols-3 gap-2 sm:gap-3 text-center text-xs sm:text-sm">
-                                <div class="bg-white rounded-lg border border-blue-100 p-2 sm:p-3">
-                                    <div class="text-[10px] sm:text-xs text-gray-400 font-semibold mb-0.5 sm:mb-1">stack.top()</div>
-                                    <div class="text-base sm:text-lg font-bold text-blue-600">"C"</div>
+                    <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
+                        <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Visual:
+                            Peeking at [A, B, C]</p>
+                        <div class="grid grid-cols-3 gap-2 sm:gap-3 text-center text-xs sm:text-sm">
+                            <div class="bg-white rounded-lg border border-blue-100 p-2 sm:p-3">
+                                <div class="text-[10px] sm:text-xs text-gray-400 font-semibold mb-0.5 sm:mb-1">
+                                    stack.top()
                                 </div>
-                                <div class="bg-white rounded-lg border border-blue-100 p-2 sm:p-3">
-                                    <div class="text-[10px] sm:text-xs text-gray-400 font-semibold mb-0.5 sm:mb-1">queue.front()</div>
-                                    <div class="text-base sm:text-lg font-bold text-blue-600">"A"</div>
+                                <div class="text-base sm:text-lg font-bold text-blue-600">"C"</div>
+                            </div>
+                            <div class="bg-white rounded-lg border border-blue-100 p-2 sm:p-3">
+                                <div class="text-[10px] sm:text-xs text-gray-400 font-semibold mb-0.5 sm:mb-1">
+                                    queue.front()
                                 </div>
-                                <div class="bg-white rounded-lg border border-blue-100 p-2 sm:p-3">
-                                    <div class="text-[10px] sm:text-xs text-gray-400 font-semibold mb-0.5 sm:mb-1">queue.rear()</div>
-                                    <div class="text-base sm:text-lg font-bold text-blue-600">"C"</div>
+                                <div class="text-base sm:text-lg font-bold text-blue-600">"A"</div>
+                            </div>
+                            <div class="bg-white rounded-lg border border-blue-100 p-2 sm:p-3">
+                                <div class="text-[10px] sm:text-xs text-gray-400 font-semibold mb-0.5 sm:mb-1">
+                                    queue.rear()
                                 </div>
+                                <div class="text-base sm:text-lg font-bold text-blue-600">"C"</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 6: Persistence -->
-            <div>
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Persistence with localStorage</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            Every operation saves data to <code class="text-blue-600">localStorage</code>. On page reload, <code class="text-blue-600">load()</code> restores the saved state into both classes.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 6: Persistence -->
+        <div>
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Persistence with localStorage</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        Every operation saves data to <code class="text-blue-600">localStorage</code>. On page reload,
+                        <code class="text-blue-600">load()</code> restores the saved state into both classes.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — save & load</span>
 <span class="keyword">const</span> STORAGE_KEY = <span class="string">"sq_data"</span>;
 
@@ -377,87 +553,109 @@ window.<span class="function">peekQueueRear</span> = () =>
 };
 
 <span class="keyword">const</span> <span class="function">load</span> = () => {
-    <span class="keyword">const</span> data = JSON.<span class="function">parse</span>(localStorage.<span class="function">getItem</span>(STORAGE_KEY));
+    <span class="keyword">const</span> data = JSON.<span class="function">parse</span>(localStorage.<span
+            class="function">getItem</span>(STORAGE_KEY));
     <span class="keyword">if</span> (data) {
         stack.<span class="function">load</span>(data.stack || []);
         queue.<span class="function">load</span>(data.queue || []);
     }
     <span class="function">render</span>();
 };</pre>
-                        </div>
-                        <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
-                            💡 <strong>Why this works:</strong> <code>getAll()</code> returns a plain array copy which can be serialized to JSON. On reload, <code>load()</code> restores it back.
-                        </div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
+                        💡 <strong>Why this works:</strong> <code>getAll()</code> returns a plain array copy which can be
+                        serialized to JSON. On reload, <code>load()</code> restores it back.
                     </div>
                 </div>
             </div>
-
-        </div>
-
-        <!-- SUMMARY TABLE -->
-        <div class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
-            <div class="p-4 sm:p-6 border-b border-blue-50">
-                <h3 class="text-lg sm:text-xl font-bold text-gray-900">📋 Operations Summary</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs sm:text-sm">
-                    <thead class="bg-blue-50/50">
-                        <tr>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Structure</th>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Operation</th>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700 hidden sm:table-cell">What it does</th>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Speed</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-blue-50">
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-900" rowspan="3">Stack</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">push(val)</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">Add to the <strong>top</strong></td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">pop()</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">Remove from the <strong>top</strong></td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">top()</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">View the top item</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30 border-t-2 border-blue-100">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-900" rowspan="4">Queue</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">enqueue(val)</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">Add to the <strong>rear</strong></td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">dequeue()</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">Remove from the <strong>front</strong></td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">front()</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">View the first item</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">rear()</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">View the last item</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="text-center text-gray-400 text-[10px] sm:text-xs pb-4 sm:pb-6">
-            Workshop: Stack & Queue — CSI105T Data Structures · Author: 68037294 Raksit Phothong
         </div>
 
     </div>
+
+    <!-- SUMMARY TABLE -->
+    <div class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
+        <div class="p-4 sm:p-6 border-b border-blue-50">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900">📋 Operations Summary</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs sm:text-sm">
+                <thead class="bg-blue-50/50">
+                <tr>
+                    <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Structure</th>
+                    <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Operation</th>
+                    <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700 hidden sm:table-cell">
+                        What it does
+                    </th>
+                    <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Speed</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-blue-50">
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-900" rowspan="3">Stack</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">push(val)</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">Add to the
+                        <strong>top</strong></td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">pop()</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">Remove from the
+                        <strong>top</strong></td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">top()</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">View the top item</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30 border-t-2 border-blue-100">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-900" rowspan="4">Queue</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">enqueue(val)</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">Add to the
+                        <strong>rear</strong></td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">dequeue()</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">Remove from the <strong>front</strong>
+                    </td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">front()</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">View the first item</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">rear()</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600 hidden sm:table-cell">View the last item</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="text-center text-gray-400 text-[10px] sm:text-xs pb-4 sm:pb-6">
+        Workshop: Stack & Queue — CSI105T Data Structures · Author: 68037294 Raksit Phothong
+    </div>
+
+</div>
 
 </body>
 </html>

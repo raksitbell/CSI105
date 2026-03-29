@@ -2,159 +2,278 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Deep Dive: Management Linked List</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../global.css">
+    <link href="../global.css" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Kanit', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
-                    colors: { blue: { 650: '#2563eb' } }
+                    fontFamily: {sans: ['Kanit', 'sans-serif'], mono: ['Fira Code', 'monospace']},
+                    colors: {blue: {650: '#2563eb'}}
                 }
             }
         }
     </script>
     <style>
-        .code-block { background: #0f172a; color: #e2e8f0; border-radius: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .code-block .keyword { color: #c084fc; }
-        .code-block .string { color: #34d399; }
-        .code-block .comment { color: #64748b; }
-        .code-block .function { color: #60a5fa; }
-        .code-block .class-name { color: #fbbf24; }
-        .code-block .number { color: #f472b6; }
-        .code-block .null { color: #fb923c; }
+        .code-block {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-        .step-card { counter-increment: step; position: relative; }
+        .code-block .keyword {
+            color: #c084fc;
+        }
+
+        .code-block .string {
+            color: #34d399;
+        }
+
+        .code-block .comment {
+            color: #64748b;
+        }
+
+        .code-block .function {
+            color: #60a5fa;
+        }
+
+        .code-block .class-name {
+            color: #fbbf24;
+        }
+
+        .code-block .number {
+            color: #f472b6;
+        }
+
+        .code-block .null {
+            color: #fb923c;
+        }
+
+        .step-card {
+            counter-increment: step;
+            position: relative;
+        }
+
         .step-num {
-            display: flex; align-items: center; justify-content: center;
-            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            flex-shrink: 0;
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white; font-weight: 700; font-size: 14px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
         }
-        .step-num::after { content: counter(step); }
 
-        .step-connector { position: relative; }
-        .step-connector::before {
-            content: ''; position: absolute; left: 17px; top: 44px; bottom: -12px;
-            width: 2px; background: linear-gradient(to bottom, #3b82f6, #dbeafe);
+        .step-num::after {
+            content: counter(step);
         }
-        .step-connector:last-child::before { display: none; }
+
+        .step-connector {
+            position: relative;
+        }
+
+        .step-connector::before {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 44px;
+            bottom: -12px;
+            width: 2px;
+            background: linear-gradient(to bottom, #3b82f6, #dbeafe);
+        }
+
+        .step-connector:last-child::before {
+            display: none;
+        }
 
         @media (min-width: 768px) {
-            .step-num { width: 40px; height: 40px; font-size: 16px; }
-            .step-connector::before { left: 19px; top: 48px; }
+            .step-num {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .step-connector::before {
+                left: 19px;
+                top: 48px;
+            }
         }
 
         .node-visual {
-            display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
         }
+
         .node-box {
-            animation: fadeUp 0.5s ease-out forwards; opacity: 0;
+            animation: fadeUp 0.5s ease-out forwards;
+            opacity: 0;
         }
-        .node-box:nth-child(1) { animation-delay: 0.1s; }
-        .node-box:nth-child(2) { animation-delay: 0.3s; }
-        .node-box:nth-child(3) { animation-delay: 0.5s; }
-        .node-box:nth-child(4) { animation-delay: 0.7s; }
+
+        .node-box:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .node-box:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .node-box:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+
+        .node-box:nth-child(4) {
+            animation-delay: 0.7s;
+        }
+
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .arrow { color: #3b82f6; font-weight: bold; margin: 0 2px; font-size: 16px; }
-        @media (min-width: 768px) { .arrow { margin: 0 4px; font-size: 20px; } }
+
+        .arrow {
+            color: #3b82f6;
+            font-weight: bold;
+            margin: 0 2px;
+            font-size: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .arrow {
+                margin: 0 4px;
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body class="bg-blue-50/30 text-gray-900 font-sans antialiased min-h-screen" style="counter-reset: step;">
 
-    <!-- HEADER -->
-    <div class="bg-white border-b border-blue-100 sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-                <a href="index.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm flex-shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    <span class="hidden sm:inline">Back to Index</span>
-                    <span class="sm:hidden">Back</span>
-                </a>
-                <div class="min-w-0">
-                    <h1 class="text-base sm:text-lg font-bold text-gray-900 truncate">Deep Dive: Management Linked List</h1>
-                    <p class="text-[10px] sm:text-xs text-gray-400 hidden sm:block">How this project works — step by step</p>
+<!-- NAV BAR -->
+<nav class="bg-white border-b border-blue-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-gray-900 block leading-none">Deep Dive</span>
+                    <span class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Linked List Tool</span>
                 </div>
             </div>
-            <span class="text-[10px] sm:text-xs bg-blue-50 text-blue-600 font-semibold px-2 sm:px-3 py-1 rounded-full border border-blue-100 flex-shrink-0">CSI105T</span>
+            <div class="flex items-center gap-2 sm:gap-4">
+                <a class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                   href="index.html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"></path>
+                    </svg>
+                    Back <span class="hidden xs:inline">to Visualizer</span>
+                </a>
+            </div>
         </div>
     </div>
+</nav>
 
-    <div class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-10 space-y-8 sm:space-y-12">
+<div class="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-10 space-y-8 sm:space-y-12">
 
-        <!-- INTRO -->
-        <div class="text-center space-y-3 sm:space-y-4">
-            <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                Tech Deep Dive
-            </div>
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">How the Linked List Page Works</h2>
-            <p class="text-gray-500 text-sm sm:text-base max-w-2xl mx-auto">This page explains every major part of the Management Linked List project. All code shown is the <strong>real code</strong> from this project.</p>
+    <!-- INTRO -->
+    <div class="text-center space-y-3 sm:space-y-4">
+        <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"></path>
+            </svg>
+            Tech Deep Dive
         </div>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">How the Linked List Page Works</h2>
+        <p class="text-gray-500 text-sm sm:text-base max-w-2xl mx-auto">This page explains every major part of the
+            Management Linked List project. All code shown is the <strong>real code</strong> from this project.</p>
+    </div>
 
-        <!-- WHAT IS A LINKED LIST -->
-        <div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
-            <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-                <span class="text-xl sm:text-2xl">🧠</span> What is a Linked List?
-            </h3>
-            <p class="text-gray-600 text-sm sm:text-base leading-relaxed">A Linked List is a collection of <strong>nodes</strong>. Each node stores <strong>a value</strong> and <strong>a pointer to the next node</strong>. Unlike arrays, linked lists don't store data side by side in memory. Instead, each piece of data "points" to the next one like a chain.</p>
+    <!-- WHAT IS A LINKED LIST -->
+    <div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+            <span class="text-xl sm:text-2xl">🧠</span> What is a Linked List?
+        </h3>
+        <p class="text-gray-600 text-sm sm:text-base leading-relaxed">A Linked List is a collection of
+            <strong>nodes</strong>. Each node stores <strong>a value</strong> and <strong>a pointer to the next
+                node</strong>. Unlike arrays, linked lists don't store data side by side in memory. Instead, each piece
+            of data "points" to the next one like a chain.</p>
 
-            <!-- VISUAL -->
-            <div class="bg-blue-50/50 rounded-xl p-3 sm:p-6">
-                <div class="node-visual">
-                    <div class="node-box flex items-center">
-                        <div class="bg-white border-2 border-blue-400 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm">
-                            <div class="text-[9px] sm:text-[10px] uppercase text-gray-400 font-semibold">Head</div>
-                            <div class="text-base sm:text-lg font-bold text-blue-600">"A"</div>
-                        </div>
-                        <span class="arrow">→</span>
+        <!-- VISUAL -->
+        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-6">
+            <div class="node-visual">
+                <div class="node-box flex items-center">
+                    <div class="bg-white border-2 border-blue-400 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm">
+                        <div class="text-[9px] sm:text-[10px] uppercase text-gray-400 font-semibold">Head</div>
+                        <div class="text-base sm:text-lg font-bold text-blue-600">"A"</div>
                     </div>
-                    <div class="node-box flex items-center">
-                        <div class="bg-white border-2 border-blue-200 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm">
-                            <div class="text-[9px] sm:text-[10px] uppercase text-gray-400 font-semibold">Node</div>
-                            <div class="text-base sm:text-lg font-bold text-gray-700">"B"</div>
-                        </div>
-                        <span class="arrow">→</span>
+                    <span class="arrow">→</span>
+                </div>
+                <div class="node-box flex items-center">
+                    <div class="bg-white border-2 border-blue-200 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm">
+                        <div class="text-[9px] sm:text-[10px] uppercase text-gray-400 font-semibold">Node</div>
+                        <div class="text-base sm:text-lg font-bold text-gray-700">"B"</div>
                     </div>
-                    <div class="node-box flex items-center">
-                        <div class="bg-white border-2 border-blue-200 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm">
-                            <div class="text-[9px] sm:text-[10px] uppercase text-gray-400 font-semibold">Node</div>
-                            <div class="text-base sm:text-lg font-bold text-gray-700">"C"</div>
-                        </div>
-                        <span class="arrow">→</span>
+                    <span class="arrow">→</span>
+                </div>
+                <div class="node-box flex items-center">
+                    <div class="bg-white border-2 border-blue-200 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-center shadow-sm">
+                        <div class="text-[9px] sm:text-[10px] uppercase text-gray-400 font-semibold">Node</div>
+                        <div class="text-base sm:text-lg font-bold text-gray-700">"C"</div>
                     </div>
-                    <div class="node-box flex items-center">
-                        <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-center">
-                            <div class="text-[9px] sm:text-[10px] uppercase text-gray-400 font-semibold">End</div>
-                            <div class="text-xs sm:text-sm font-bold text-gray-400">null</div>
-                        </div>
+                    <span class="arrow">→</span>
+                </div>
+                <div class="node-box flex items-center">
+                    <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 text-center">
+                        <div class="text-[9px] sm:text-[10px] uppercase text-gray-400 font-semibold">End</div>
+                        <div class="text-xs sm:text-sm font-bold text-gray-400">null</div>
                     </div>
                 </div>
             </div>
-            <p class="text-xs sm:text-sm text-gray-400 text-center">Each box is a <strong>Node</strong>. The arrows (→) are the <code class="text-blue-600">.next</code> pointers.</p>
         </div>
+        <p class="text-xs sm:text-sm text-gray-400 text-center">Each box is a <strong>Node</strong>. The arrows (→) are
+            the <code class="text-blue-600">.next</code> pointers.</p>
+    </div>
 
-        <!-- STEP-BY-STEP -->
-        <div class="space-y-3">
-            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Step-by-Step: How The Code Works</h3>
+    <!-- STEP-BY-STEP -->
+    <div class="space-y-3">
+        <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Step-by-Step: How The Code Works</h3>
 
-            <!-- STEP 1: Node Class -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Create a Node with OOP</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            A <strong>Node</strong> holds one piece of data (<code class="text-blue-600">value</code>) and a pointer to the next node (<code class="text-blue-600">next</code>). When created, <code class="text-blue-600">next</code> is always <code class="text-orange-500">null</code>.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 1: Node Class -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Create a Node with OOP</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        A <strong>Node</strong> holds one piece of data (<code class="text-blue-600">value</code>) and a
+                        pointer to the next node (<code class="text-blue-600">next</code>). When created, <code
+                            class="text-blue-600">next</code> is always <code class="text-orange-500">null</code>.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — The Node class</span>
 <span class="keyword">class</span> <span class="class-name">Node</span> {
     <span class="function">constructor</span>(value) {
@@ -162,24 +281,27 @@
         <span class="keyword">this</span>.next = <span class="null">null</span>;
     }
 }</pre>
-                        </div>
-                        <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
-                            💡 <strong>Think of it like this:</strong> Each node is a box with two slots: one for data, one for the address of the next box.
-                        </div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
+                        💡 <strong>Think of it like this:</strong> Each node is a box with two slots: one for data, one
+                        for the address of the next box.
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 2: LinkedList Class -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Build the LinkedList Class</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            The <strong>LinkedList</strong> class manages a chain of nodes. It tracks the starting point (<code class="text-blue-600">head</code>), the total count (<code class="text-blue-600">size</code>), and gives the list a name and ID.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 2: LinkedList Class -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Build the LinkedList Class</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        The <strong>LinkedList</strong> class manages a chain of nodes. It tracks the starting point
+                        (<code class="text-blue-600">head</code>), the total count (<code
+                            class="text-blue-600">size</code>), and gives the list a name and ID.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — The LinkedList class</span>
 <span class="keyword">class</span> <span class="class-name">LinkedList</span> {
     <span class="function">constructor</span>(id, name) {
@@ -189,24 +311,29 @@
         <span class="keyword">this</span>.size = <span class="number">0</span>;
     }
 }</pre>
-                        </div>
-                        <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
-                            💡 When a list is created, <code class="font-semibold">head</code> is <code class="font-semibold text-orange-500">null</code> and <code class="font-semibold">size</code> is <code class="font-semibold text-pink-500">0</code> — an empty list.
-                        </div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm text-blue-800">
+                        💡 When a list is created, <code class="font-semibold">head</code> is <code
+                            class="font-semibold text-orange-500">null</code> and <code
+                            class="font-semibold">size</code> is <code class="font-semibold text-pink-500">0</code> — an
+                        empty list.
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 3: Push -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Push — Add to the End</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            <code class="text-blue-600">push()</code> adds a new node at the <strong>end</strong>. If empty, the new node becomes the head. Otherwise, we walk the chain to find the last node, then attach it.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 3: Push -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Push — Add to the End</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        <code class="text-blue-600">push()</code> adds a new node at the <strong>end</strong>. If empty,
+                        the new node becomes the head. Otherwise, we walk the chain to find the last node, then attach
+                        it.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — push method</span>
 <span class="function">push</span>(val) {
     <span class="keyword">const</span> node = <span class="keyword">new</span> <span class="class-name">Node</span>(val);
@@ -218,36 +345,47 @@
     }
     <span class="keyword">this</span>.size++;
 }</pre>
-                        </div>
+                    </div>
 
-                        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
-                            <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Visual: push("D") on [A → B → C]</p>
-                            <div class="node-visual text-xs sm:text-sm">
-                                <div class="bg-white border-2 border-blue-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-blue-600">A</div>
-                                <span class="arrow">→</span>
-                                <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">B</div>
-                                <span class="arrow">→</span>
-                                <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">C</div>
-                                <span class="arrow">→</span>
-                                <div class="bg-green-50 border-2 border-green-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-green-600 ring-2 ring-green-200">D ✨</div>
-                                <span class="arrow">→</span>
-                                <span class="text-gray-400 font-mono text-[10px] sm:text-xs">null</span>
+                    <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
+                        <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Visual:
+                            push("D") on [A → B → C]</p>
+                        <div class="node-visual text-xs sm:text-sm">
+                            <div class="bg-white border-2 border-blue-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-blue-600">
+                                A
                             </div>
+                            <span class="arrow">→</span>
+                            <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">
+                                B
+                            </div>
+                            <span class="arrow">→</span>
+                            <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">
+                                C
+                            </div>
+                            <span class="arrow">→</span>
+                            <div class="bg-green-50 border-2 border-green-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-green-600 ring-2 ring-green-200">
+                                D ✨
+                            </div>
+                            <span class="arrow">→</span>
+                            <span class="text-gray-400 font-mono text-[10px] sm:text-xs">null</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 4: Unshift -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Unshift — Add to the Front</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            <code class="text-blue-600">unshift()</code> adds a new node at the <strong>front</strong>. The new node's <code>next</code> points to the old head, then it becomes the new head. Faster than push — no walking needed.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 4: Unshift -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Unshift — Add to the Front</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        <code class="text-blue-600">unshift()</code> adds a new node at the <strong>front</strong>. The
+                        new node's <code>next</code> points to the old head, then it becomes the new head. Faster than
+                        push — no walking needed.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — unshift method</span>
 <span class="function">unshift</span>(val) {
     <span class="keyword">const</span> node = <span class="keyword">new</span> <span class="class-name">Node</span>(val);
@@ -255,95 +393,119 @@
     <span class="keyword">this</span>.head = node;
     <span class="keyword">this</span>.size++;
 }</pre>
-                        </div>
+                    </div>
 
-                        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
-                            <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Visual: unshift("Z") on [A → B → C]</p>
-                            <div class="node-visual text-xs sm:text-sm">
-                                <div class="bg-green-50 border-2 border-green-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-green-600 ring-2 ring-green-200">Z ✨</div>
-                                <span class="arrow">→</span>
-                                <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">A</div>
-                                <span class="arrow">→</span>
-                                <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">B</div>
-                                <span class="arrow">→</span>
-                                <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">C</div>
-                                <span class="arrow">→</span>
-                                <span class="text-gray-400 font-mono text-[10px] sm:text-xs">null</span>
+                    <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
+                        <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Visual:
+                            unshift("Z") on [A → B → C]</p>
+                        <div class="node-visual text-xs sm:text-sm">
+                            <div class="bg-green-50 border-2 border-green-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-green-600 ring-2 ring-green-200">
+                                Z ✨
                             </div>
+                            <span class="arrow">→</span>
+                            <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">
+                                A
+                            </div>
+                            <span class="arrow">→</span>
+                            <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">
+                                B
+                            </div>
+                            <span class="arrow">→</span>
+                            <div class="bg-white border-2 border-blue-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-700">
+                                C
+                            </div>
+                            <span class="arrow">→</span>
+                            <span class="text-gray-400 font-mono text-[10px] sm:text-xs">null</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 5: Get -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Get — Find a Value by Index</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            <code class="text-blue-600">get(index)</code> walks through the list counting until it reaches the right position. Returns <code class="text-orange-500">null</code> if out of bounds.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 5: Get -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Get — Find a Value by Index</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        <code class="text-blue-600">get(index)</code> walks through the list counting until it reaches
+                        the right position. Returns <code class="text-orange-500">null</code> if out of bounds.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — get method</span>
 <span class="function">get</span>(index) {
-    <span class="keyword">if</span> (index < <span class="number">0</span> || index >= <span class="keyword">this</span>.size) <span class="keyword">return</span> <span class="null">null</span>;
+    <span class="keyword">if</span> (index < <span class="number">0</span> || index >= <span class="keyword">this</span>.size) <span
+            class="keyword">return</span> <span class="null">null</span>;
     <span class="keyword">let</span> current = <span class="keyword">this</span>.head;
     <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < index; i++) current = current.next;
     <span class="keyword">return</span> current.value;
 }</pre>
-                        </div>
+                    </div>
 
-                        <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
-                            <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Visual: get(2) on [A → B → C → D]</p>
-                            <div class="node-visual text-xs sm:text-sm">
-                                <div class="bg-white border-2 border-gray-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-400">A<span class="text-[9px] sm:text-[10px] ml-0.5">[0]</span></div>
-                                <span class="arrow text-gray-300">→</span>
-                                <div class="bg-white border-2 border-gray-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-400">B<span class="text-[9px] sm:text-[10px] ml-0.5">[1]</span></div>
-                                <span class="arrow text-gray-300">→</span>
-                                <div class="bg-yellow-50 border-2 border-yellow-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-yellow-600 ring-2 ring-yellow-200">C<span class="text-[9px] sm:text-[10px] ml-0.5">[2]</span> 🎯</div>
-                                <span class="arrow text-gray-300">→</span>
-                                <div class="bg-white border-2 border-gray-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-400">D<span class="text-[9px] sm:text-[10px] ml-0.5">[3]</span></div>
+                    <div class="bg-blue-50/50 rounded-xl p-3 sm:p-4 space-y-2">
+                        <p class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Visual:
+                            get(2) on [A → B → C → D]</p>
+                        <div class="node-visual text-xs sm:text-sm">
+                            <div class="bg-white border-2 border-gray-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-400">
+                                A<span class="text-[9px] sm:text-[10px] ml-0.5">[0]</span></div>
+                            <span class="arrow text-gray-300">→</span>
+                            <div class="bg-white border-2 border-gray-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-400">
+                                B<span class="text-[9px] sm:text-[10px] ml-0.5">[1]</span></div>
+                            <span class="arrow text-gray-300">→</span>
+                            <div class="bg-yellow-50 border-2 border-yellow-400 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-yellow-600 ring-2 ring-yellow-200">
+                                C<span class="text-[9px] sm:text-[10px] ml-0.5">[2]</span> 🎯
                             </div>
-                            <p class="text-center text-xs sm:text-sm text-yellow-700 font-semibold">Result: <code>"C"</code></p>
+                            <span class="arrow text-gray-300">→</span>
+                            <div class="bg-white border-2 border-gray-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm font-bold text-gray-400">
+                                D<span class="text-[9px] sm:text-[10px] ml-0.5">[3]</span></div>
                         </div>
+                        <p class="text-center text-xs sm:text-sm text-yellow-700 font-semibold">Result: <code>"C"</code>
+                        </p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 6: Management -->
-            <div class="step-connector">
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">Manage Multiple Lists (Create & Delete)</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            This project manages <strong>multiple linked lists</strong>. All lists are stored in an array called <code class="text-blue-600">lists[]</code>. Creating pushes a new <code>LinkedList</code> instance. Deleting removes by ID.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 6: Management -->
+        <div class="step-connector">
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">Manage Multiple Lists (Create &
+                        Delete)</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        This project manages <strong>multiple linked lists</strong>. All lists are stored in an array
+                        called <code class="text-blue-600">lists[]</code>. Creating pushes a new <code>LinkedList</code>
+                        instance. Deleting removes by ID.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — managing multiple lists</span>
 <span class="keyword">let</span> lists = [];
 
 <span class="comment">// Create a new list</span>
-lists.<span class="function">push</span>(<span class="keyword">new</span> <span class="class-name">LinkedList</span>(<span class="null">null</span>, <span class="string">"My List"</span>));
+lists.<span class="function">push</span>(<span class="keyword">new</span> <span
+            class="class-name">LinkedList</span>(<span class="null">null</span>, <span class="string">"My List"</span>));
 
 <span class="comment">// Delete selected lists by ID</span>
 lists = lists.<span class="function">filter</span>(l => !ids.<span class="function">includes</span>(l.id));</pre>
-                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- STEP 7: Details & Persistence -->
-            <div>
-                <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
-                    <div class="step-num"></div>
-                    <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
-                        <h4 class="text-base sm:text-lg font-bold text-gray-900">View Details & Persistence</h4>
-                        <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                            Details panel shows each node with index and value. Data is saved to <code class="text-blue-600">localStorage</code> so it survives page reloads. <code>toArray()</code> and <code>fromArray()</code> handle conversion for JSON storage.
-                        </p>
-                        <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
+        <!-- STEP 7: Details & Persistence -->
+        <div>
+            <div class="step-card flex items-start gap-3 sm:gap-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 sm:p-6">
+                <div class="step-num"></div>
+                <div class="flex-1 min-w-0 space-y-3 sm:space-y-4">
+                    <h4 class="text-base sm:text-lg font-bold text-gray-900">View Details & Persistence</h4>
+                    <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        Details panel shows each node with index and value. Data is saved to <code
+                            class="text-blue-600">localStorage</code> so it survives page reloads.
+                        <code>toArray()</code> and <code>fromArray()</code> handle conversion for JSON storage.
+                    </p>
+                    <div class="code-block p-3 sm:p-4 text-xs sm:text-sm font-mono">
 <pre><span class="comment">// From script.js — toArray & persistence</span>
 <span class="function">toArray</span>() {
     <span class="keyword">const</span> nodes = [];
@@ -357,71 +519,84 @@ lists = lists.<span class="function">filter</span>(l => !ids.<span class="functi
 
 <span class="comment">// Save to localStorage</span>
 localStorage.<span class="function">setItem</span>(<span class="string">"ll_data"</span>, JSON.<span class="function">stringify</span>(
-    lists.<span class="function">map</span>(l => ({ id: l.id, name: l.name, items: l.<span class="function">toArray</span>() }))
+    lists.<span class="function">map</span>(l => ({ id: l.id, name: l.name, items: l.<span
+            class="function">toArray</span>() }))
 ));</pre>
-                        </div>
                     </div>
                 </div>
             </div>
-
-        </div>
-
-        <!-- SUMMARY TABLE -->
-        <div class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
-            <div class="p-4 sm:p-6 border-b border-blue-50">
-                <h3 class="text-lg sm:text-xl font-bold text-gray-900">📋 Operations Summary</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs sm:text-sm">
-                    <thead class="bg-blue-50/50">
-                        <tr>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Operation</th>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">What it does</th>
-                            <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Speed</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-blue-50">
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">push(val)</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Add to the <strong>end</strong></td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">unshift(val)</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Add to the <strong>front</strong></td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">pop()</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Remove from the <strong>end</strong></td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">shift()</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Remove from the <strong>front</strong></td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">get(index)</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Find value at position</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">set(i, val)</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Update value at position</td>
-                            <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="text-center text-gray-400 text-[10px] sm:text-xs pb-4 sm:pb-6">
-            Workshop: Management Linked List — CSI105T Data Structures · Author: 68037294 Raksit Phothong
         </div>
 
     </div>
+
+    <!-- SUMMARY TABLE -->
+    <div class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
+        <div class="p-4 sm:p-6 border-b border-blue-50">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900">📋 Operations Summary</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs sm:text-sm">
+                <thead class="bg-blue-50/50">
+                <tr>
+                    <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Operation</th>
+                    <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">What it does</th>
+                    <th class="text-left px-3 sm:px-6 py-2 sm:py-3 font-semibold text-gray-700">Speed</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-blue-50">
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">push(val)</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Add to the <strong>end</strong></td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">unshift(val)</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Add to the <strong>front</strong></td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">pop()</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Remove from the <strong>end</strong></td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">shift()</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Remove from the <strong>front</strong></td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(1)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">get(index)</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Find value at position</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span>
+                    </td>
+                </tr>
+                <tr class="hover:bg-blue-50/30">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 font-mono text-blue-600 font-semibold">set(i, val)</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-gray-600">Update value at position</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span
+                            class="bg-yellow-50 text-yellow-700 text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded">O(n)</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="text-center text-gray-400 text-[10px] sm:text-xs pb-4 sm:pb-6">
+        Workshop: Management Linked List — CSI105T Data Structures · Author: 68037294 Raksit Phothong
+    </div>
+
+</div>
 
 </body>
 </html>
