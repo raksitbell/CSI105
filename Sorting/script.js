@@ -23,33 +23,33 @@ let currentStep = -1;
  */
 const ALGO_INFO = {
     bubble: {
-        name: "Bubble Sort",
-        desc: "Bubble Sort works by repeatedly stepping through the list, comparing adjacent elements and swapping them if they are in the wrong order.",
+        name: "Bubble Sort (การเรียงลำดับแบบฟอง)",
+        desc: "Bubble Sort ทำงานโดยการเปรียบเทียบสมาชิกที่อยู่ติดกันทีละคู่และสลับตำแหน่งกันหากเรียงลำดับไม่ถูกต้อง โดยจะทำซ้ำไปเรื่อยๆ จนกว่าข้อมูลทั้งหมดจะเรียงตัวกันอย่างสมบูรณ์",
         complexity: "O(n²)"
     },
     selection: {
-        name: "Selection Sort",
-        desc: "Selection Sort divides the input list into two parts: a sorted sublist of items which is built up from left to right and a sublist of the remaining unsorted items.",
+        name: "Selection Sort (การเรียงลำดับแบบเลือก)",
+        desc: "Selection Sort จะแบ่งข้อมูลออกเป็นสองส่วน คือส่วนที่เรียงลำดับแล้วและส่วนที่ยังไม่ได้เรียง โดยจะค้นหาค่าที่น้อยที่สุดจากส่วนที่ยังไม่ได้เรียงแล้วนำไปต่อท้ายส่วนที่เรียงลำดับแล้วจากซ้ายไปขวา",
         complexity: "O(n²)"
     },
     insertion: {
-        name: "Insertion Sort",
-        desc: "Insertion Sort builds the final sorted array one item at a time. It is much less efficient on large lists than more advanced algorithms.",
+        name: "Insertion Sort (การเรียงลำดับแบบแทรก)",
+        desc: "Insertion Sort จะค่อยๆ สร้างรายการที่เรียงลำดับแล้วทีละรายการ โดยการนำข้อมูลใหม่ไปแทรกในตำแหน่งที่ถูกต้องของข้อมูลที่เรียงไว้ก่อนหน้า แต่อาจมีประสิทธิภาพต่ำเมื่อใช้กับข้อมูลชุดใหญ่",
         complexity: "O(n²)"
     },
     shell: {
-        name: "Shell Sort",
-        desc: "Shell Sort is a generalization of insertion sort that allows the exchange of items that are far apart. The idea is to arrange the list of elements so that, starting anywhere, considering every h-th element gives a sorted list.",
+        name: "Shell Sort (การเรียงลำดับแบบเชลล์)",
+        desc: "Shell Sort เป็นการต่อยอดมาจาก Insertion Sort โดยอนุญาตให้มีการสลับตำแหน่งของข้อมูลที่อยู่ห่างกันได้ หลักการคือการจัดกลุ่มข้อมูลย่อยด้วยระยะห่าง (h) เพื่อให้ข้อมูลในกลุ่มย่อยนั้นเรียงลำดับกันก่อน",
         complexity: "O(n log² n)"
     },
     merge: {
-        name: "Merge Sort",
-        desc: "Merge Sort is an efficient, stable, comparison-based, divide and conquer sorting algorithm. Most implementations produce a stable sort, meaning that the order of equal elements is the same in the input and output.",
+        name: "Merge Sort (การเรียงลำดับแบบผสาน)",
+        desc: "Merge Sort เป็นอัลกอริทึมที่มีประสิทธิภาพและมีความเสถียร (Stable) โดยใช้หลักการ 'แบ่งแยกและเอาชนะ' (Divide and Conquer) เพื่อแยกข้อมูลออกเป็นส่วนย่อยแล้วนำกลับมาผสานกันใหม่ในลำดับที่ถูกต้อง",
         complexity: "O(n log n)"
     },
     quick: {
-        name: "Quick Sort",
-        desc: "Quick Sort is an efficient, divide and conquer sorting algorithm. When implemented well, it can be about two or three times faster than its main competitors, merge sort and heap sort.",
+        name: "Quick Sort (การเรียงลำดับแบบรวดเร็ว)",
+        desc: "Quick Sort เป็นอัลกอริทึมที่มีประสิทธิภาพสูงโดยใช้หลักการ 'แบ่งแยกและเอาชนะ' หากปรับแต่งอย่างเหมาะสมจะสามารถทำงานได้เร็วกว่า Merge Sort และ Heap Sort ถึง 2-3 เท่า",
         complexity: "O(n log n)"
     }
 };
@@ -123,7 +123,7 @@ function generateRandom() {
     document.getElementById('numberInput').value = array.join(',');
     resetStats();
     renderArray();
-    document.getElementById('statusLabel').innerText = 'Ready';
+    document.getElementById('statusLabel').innerText = '';
     document.getElementById('statusLabel').className = 'px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold uppercase tracking-wider';
     showToast('Generated 10 random numbers', 'success');
     saveToStorage();

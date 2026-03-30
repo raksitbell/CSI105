@@ -68,20 +68,15 @@
                 <div class="space-y-4">
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <label class="block text-sm font-medium text-slate-600">Expression Input</label>
-                            <select class="text-[10px] font-bold text-blue-600 bg-blue-50 border-none rounded focus:ring-0 cursor-pointer uppercase tracking-wider px-1"
-                                    id="inputType">
-                                <option value="infix">Infix</option>
-                                <option value="postfix">Postfix</option>
-                                <option value="prefix">Prefix</option>
-                            </select>
+                            <label class="block text-sm font-medium text-slate-600">Expression Input (Infix)</label>
                         </div>
-                        <input
-                                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                id="expressionInput"
-                                type="text"
-                                value="(a + b) * (c - d) / (e + f)"
-                        />
+                        <label for="expressionInput"></label><input
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                            id="expressionInput"
+                            oninput="showResults()"
+                            type="text"
+                            value="(a + b) * (c - d) / (e + f)"
+                    />
                     </div>
 
                     <!-- Postfix/Prefix Results -->
@@ -98,14 +93,7 @@
 
                     <div class="flex gap-2 pt-2">
                         <button
-                                class="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all active:scale-95 flex items-center justify-center gap-2"
-                                id="nextControlBtn"
-                                onclick="showResults()"
-                        >
-                            Next
-                        </button>
-                        <button
-                                class="flex-[2] px-4 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
+                                class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
                                 id="buildTreeBtn"
                                 onclick="buildTree(true)"
                         >
@@ -114,6 +102,17 @@
                                       stroke-width="2"></path>
                             </svg>
                             Build Tree
+                        </button>
+                        <button
+                                class="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                id="skipBtn"
+                                onclick="skipToFinal()"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M13 5l7 7-7 7M5 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2"></path>
+                            </svg>
+                            Skip
                         </button>
                     </div>
                 </div>

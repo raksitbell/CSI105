@@ -89,16 +89,8 @@ function infixToPostfix(expression) {
 
 /**
  * Converts Infix expression to Prefix
- * @param {string} expression
- * @returns {string[]} tokens in prefix order
  */
 function infixToPrefix(expression) {
-    // 1. Reverse the expression
-    // 2. Change '(' to ')' and vice versa
-    // 3. Get Postfix
-    // 4. Reverse Postfix
-
-    let reversedInput = "";
     const tokens = expression.replace(/\s+/g, '').match(/[a-zA-Z0-9]+|[-+*/^()]/g) || [];
 
     // Reverse tokens and flip parentheses
@@ -122,7 +114,6 @@ function infixToPrefix(expression) {
             }
             stack.pop();
         } else {
-            // For prefix, we use a slightly different precedence rule or handle it by reversing
             while (stack.length && getPrecedence(stack[stack.length - 1]) > getPrecedence(token)) {
                 output.push(stack.pop());
             }
@@ -135,55 +126,6 @@ function infixToPrefix(expression) {
     }
 
     return output.reverse();
-}
-
-/**
- * Builds a final tree from postfix tokens (for conversion)
- */
-function buildTreeFromPostfix(tokens) {
-    const stack = [];
-    tokens.forEach(token => {
-        const node = new TreeNode(token);
-        if (isOperator(token)) {
-            node.right = stack.pop();
-            node.left = stack.pop();
-        }
-        stack.push(node);
-    });
-    return stack[0];
-}
-
-/**
- * Builds a final tree from prefix tokens (for conversion)
- */
-function buildTreeFromPrefix(tokens) {
-    const stack = [];
-    const reversed = [...tokens].reverse();
-    reversed.forEach(token => {
-        const node = new TreeNode(token);
-        if (isOperator(token)) {
-            node.left = stack.pop();
-            node.right = stack.pop();
-        }
-        stack.push(node);
-    });
-    return stack[0];
-}
-
-/**
- * Tree to Postfix
- */
-function treeToPostfix(node) {
-    if (!node) return [];
-    return [...treeToPostfix(node.left), ...treeToPostfix(node.right), node.value];
-}
-
-/**
- * Tree to Prefix
- */
-function treeToPrefix(node) {
-    if (!node) return [];
-    return [node.value, ...treeToPrefix(node.left), ...treeToPrefix(node.right)];
 }
 
 /**
@@ -205,28 +147,21 @@ function cloneTree(node) {
  */
 function showResults() {
     const input = document.getElementById('expressionInput').value;
-    const inputType = document.getElementById('inputType').value;
-    if (!input.trim()) return;
+    if (!input.trim()) {
+        document.getElementById('postfixResult').innerText = '-';
+        document.getElementById('prefixResult').innerText = '-';
+        return null;
+    }
 
     let postfixTokens = [];
     let prefixTokens = [];
 
     try {
-        if (inputType === 'infix') {
-            postfixTokens = infixToPostfix(input);
-            prefixTokens = infixToPrefix(input);
-        } else if (inputType === 'postfix') {
-            postfixTokens = input.trim().split(/\s+/).filter(t => t);
-            const tree = buildTreeFromPostfix(postfixTokens);
-            prefixTokens = treeToPrefix(tree);
-        } else if (inputType === 'prefix') {
-            prefixTokens = input.trim().split(/\s+/).filter(t => t);
-            const tree = buildTreeFromPrefix(prefixTokens);
-            postfixTokens = treeToPostfix(tree);
-        }
+        postfixTokens = infixToPostfix(input);
+        prefixTokens = infixToPrefix(input);
     } catch (e) {
         console.error("Parsing error", e);
-        return;
+        return null;
     }
 
     // Update results in UI
@@ -242,8 +177,7 @@ function buildTree(autoStart = true) {
     const res = showResults();
     if (!res) return;
 
-    const {postfixTokens, prefixTokens} = res;
-    const inputType = document.getElementById('inputType').value;
+    const {postfixTokens} = res;
 
     steps = [];
     const stack = [];
@@ -255,63 +189,33 @@ function buildTree(autoStart = true) {
         highlightToken: null
     });
 
-    if (inputType === 'infix' || inputType === 'postfix') {
-        postfixTokens.forEach((token) => {
-            if (!isOperator(token)) {
-                const node = new TreeNode(token);
-                stack.push(node);
-                steps.push({
-                    treeStack: stack.map(n => cloneTree(n)),
-                    description: `Push "${token}"`,
-                    highlightToken: token,
-                    highlightNodeId: node.id
-                });
-            } else {
-                const node = new TreeNode(token);
-                const right = stack.pop();
-                const left = stack.pop();
-                node.right = right;
-                node.left = left;
-                stack.push(node);
+    // Postfix construction: standard for expression trees
+    postfixTokens.forEach((token) => {
+        if (!isOperator(token)) {
+            const node = new TreeNode(token);
+            stack.push(node);
+            steps.push({
+                treeStack: stack.map(n => cloneTree(n)),
+                description: `Push "${token}"`,
+                highlightToken: token,
+                highlightNodeId: node.id
+            });
+        } else {
+            const node = new TreeNode(token);
+            const right = stack.pop();
+            const left = stack.pop();
+            node.right = right;
+            node.left = left;
+            stack.push(node);
 
-                steps.push({
-                    treeStack: stack.map(n => cloneTree(n)),
-                    description: `Push op "${token}"`,
-                    highlightToken: token,
-                    highlightNodeId: node.id
-                });
-            }
-        });
-    } else if (inputType === 'prefix') {
-        // Prefix construction: process from right to left
-        const reversedPrefix = [...prefixTokens].reverse();
-        reversedPrefix.forEach((token) => {
-            if (!isOperator(token)) {
-                const node = new TreeNode(token);
-                stack.push(node);
-                steps.push({
-                    treeStack: stack.map(n => cloneTree(n)),
-                    description: `Push "${token}"`,
-                    highlightToken: token,
-                    highlightNodeId: node.id
-                });
-            } else {
-                const node = new TreeNode(token);
-                const left = stack.pop();
-                const right = stack.pop();
-                node.left = left;
-                node.right = right;
-                stack.push(node);
-
-                steps.push({
-                    treeStack: stack.map(n => cloneTree(n)),
-                    description: `Push op "${token}"`,
-                    highlightToken: token,
-                    highlightNodeId: node.id
-                });
-            }
-        });
-    }
+            steps.push({
+                treeStack: stack.map(n => cloneTree(n)),
+                description: `Push op "${token}"`,
+                highlightToken: token,
+                highlightNodeId: node.id
+            });
+        }
+    });
 
     currentStepIndex = 0;
     renderStep(0);
@@ -321,6 +225,19 @@ function buildTree(autoStart = true) {
     if (autoStart) {
         startAutoplay();
     }
+}
+
+/**
+ * Skip to the final step of construction
+ */
+function skipToFinal() {
+    if (steps.length === 0) {
+        buildTree(false);
+    }
+    stopAutoplay();
+    currentStepIndex = steps.length - 1;
+    renderStep(currentStepIndex);
+    syncHistoryHighlight();
 }
 
 /**
@@ -625,6 +542,8 @@ function centerTree() {
 // Initial build
 window.onload = () => {
     showResults(); // Just show results on initial load, don't build tree yet
+    // Update step button state
+    document.getElementById('stepBtn').disabled = true;
 };
 
 // Handle window resize to re-render tree
